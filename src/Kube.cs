@@ -51,9 +51,8 @@ public class Kube(
 
         try
         {
-            return await _kubeApi
-                .EndpointsV1()
-                .GetAsync(_configuration.KeyOfServiceInK8s, _configuration.KubeNamespace);
+            var client = EndPointClientV1.Create(_kubeApi);
+            return await client.GetAsync(_configuration.KeyOfServiceInK8s, _configuration.KubeNamespace);
         }
         // The _kubeApi was disposed while this operation was in progress.
         // This can occur during shutdown when Dispose() is called while async operations are still running.

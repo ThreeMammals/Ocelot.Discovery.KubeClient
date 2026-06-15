@@ -90,8 +90,8 @@ public class WatchKube : IServiceDiscoveryProvider, IDisposable
     private void OnCompleted() => _logger.LogInformation(() => GetMessage("Subscription to service endpoints completed"));
     private void OnException(Exception ex) => _logger.LogError(() => GetMessage("Endpoints subscription error occured."), ex);
 
-    private IDisposable CreateSubscription() => _kubeApi
-            .EndpointsV1()
+    private IDisposable CreateSubscription() => EndPointClientV1
+            .Create(_kubeApi)
             .Watch(_configuration.KeyOfServiceInK8s, _configuration.KubeNamespace)
             .Do(_ => { }, OnException)
             .RetryAfter(TimeSpan.FromSeconds(FailedSubscriptionRetrySeconds), _scheduler)

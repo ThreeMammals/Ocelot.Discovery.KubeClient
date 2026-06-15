@@ -12,6 +12,9 @@ public class EndPointClientV1(IKubeApiClient client) : KubeResourceClient(client
     private static readonly HttpRequest EndpointsWatchRequest =
         KubeRequest.Create("api/v1/watch/namespaces/{Namespace}/endpoints/{ServiceName}");
 
+    public static IEndPointClient Create(IKubeApiClient kubeClient)
+        => kubeClient.ResourceClient<IEndPointClient>(kcl => new EndPointClientV1(kcl));
+
     public Task<EndpointsV1> GetAsync(string serviceName, string kubeNamespace = null, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrEmpty(serviceName);
