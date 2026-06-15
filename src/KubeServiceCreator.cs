@@ -14,7 +14,7 @@ public class KubeServiceCreator : IKubeServiceCreator
 
     public virtual IEnumerable<Service> Create(KubeRegistryConfiguration configuration, EndpointsV1 endpoint, EndpointSubsetV1 subset)
         => (configuration == null || endpoint == null || subset == null)
-            ? Array.Empty<Service>()
+            ? []
             : subset.Addresses
                 .SelectMany(address => CreateInstance(configuration, endpoint, subset, address))
                 .ToArray();
@@ -28,7 +28,7 @@ public class KubeServiceCreator : IKubeServiceCreator
             GetServiceVersion(configuration, endpoint, subset, address),
             GetServiceTags(configuration, endpoint, subset, address)
         );
-        return new Service[] { instance };
+        return [instance];
     }
 
     protected IOcelotLogger Logger { get; }
@@ -54,5 +54,5 @@ public class KubeServiceCreator : IKubeServiceCreator
     protected virtual string GetServiceVersion(KubeRegistryConfiguration configuration, EndpointsV1 endpoint, EndpointSubsetV1 subset, EndpointAddressV1 address)
         => endpoint.ApiVersion;
     protected virtual IEnumerable<string> GetServiceTags(KubeRegistryConfiguration configuration, EndpointsV1 endpoint, EndpointSubsetV1 subset, EndpointAddressV1 address)
-        => Enumerable.Empty<string>();
+        => []; // TODO Review k8s docs for predefined tags by Kubernetes
 }

@@ -15,11 +15,11 @@ public class PollKube(
     private readonly IOcelotLogger _logger = factory.CreateLogger<PollKube>();
     private readonly IServiceDiscoveryProvider _provider = kubeProvider; // TODO IDisposable
     private readonly ConcurrentQueue<List<Service>> _queue = new();
-    public static readonly List<Service> Empty = new(0);
+    public static readonly List<Service> Empty = [];
 
     private Task _timing;
     private PeriodicTimer _timer = new(TimeSpan.FromMilliseconds(pollingInterval));
-    private CancellationTokenSource _cts = new();
+    private readonly CancellationTokenSource _cts = new();
     private volatile bool _polling, _disposed, _stopped;
 
     public async Task<List<Service>> GetAsync()

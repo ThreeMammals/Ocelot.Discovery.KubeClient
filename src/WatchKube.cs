@@ -36,7 +36,7 @@ public class WatchKube : IServiceDiscoveryProvider, IDisposable
     private readonly IDisposable _subscription;
     private TaskCompletionSource _firstResultsCompletionSource;
     
-    private List<Service> _services = new();
+    private List<Service> _services = [];
 
     public WatchKube(
         KubeRegistryConfiguration configuration,
@@ -79,9 +79,9 @@ public class WatchKube : IServiceDiscoveryProvider, IDisposable
     {
         _services = endpointEvent.EventType switch
         {
-            ResourceEventType.Deleted or ResourceEventType.Error => new(),
-            _ when (endpointEvent.Resource?.Subsets.Count ?? 0) == 0 => new(),
-            _ => _serviceBuilder.BuildServices(_configuration, endpointEvent.Resource).ToList(),
+            ResourceEventType.Deleted or ResourceEventType.Error => [],
+            _ when (endpointEvent.Resource?.Subsets.Count ?? 0) == 0 => [],
+            _ => [.. _serviceBuilder.BuildServices(_configuration, endpointEvent.Resource)],
         };
         _firstResultsCompletionSource.TrySetResult();
     }

@@ -111,13 +111,13 @@ public static class OcelotBuilderExtensions
             options.AccessTokenSelector = accessTokenSelector;
             options.CertificationAuthorityCertificate = certificationAuthorityCertificate;
             options.ClientCertificate = clientCertificate;
-            options.EnvironmentVariables = environmentVariables ?? new();
+            options.EnvironmentVariables = environmentVariables ?? [];
             options.InitialAccessToken = initialAccessToken;
             options.InitialTokenExpiryUtc = initialTokenExpiryUtc;
             options.LoggerFactory = loggerFactory;
             options.LogHeaders = logHeaders ?? false;
             options.LogPayloads = logPayloads ?? false;
-            options.ModelTypeAssemblies.AddRange(modelTypeAssemblies ?? new());
+            options.ModelTypeAssemblies.AddRange(modelTypeAssemblies ?? []);
             options.Password = password;
             options.Username = username;
         }

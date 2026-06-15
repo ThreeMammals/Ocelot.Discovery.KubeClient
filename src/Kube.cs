@@ -29,17 +29,16 @@ public class Kube(
     public virtual async Task<List<Service>> GetAsync()
     {
         if (_disposed)
-            return new(0);
+            return [];
 
         var endpoint = await Retry.OperationAsync(GetEndpoint, CheckErroneousState, logger: _logger);
         if (CheckErroneousState(endpoint))
         {
             _logger.LogWarning(() => GetMessage($"Unable to use bad result returned by {nameof(Kube)} integration endpoint because the final result is invalid/unknown after multiple retries!"));
-            return new(0);
+            return [];
         }
 
-        return BuildServices(_configuration, endpoint)
-            .ToList();
+        return [.. BuildServices(_configuration, endpoint)];
     }
 
     private string Message(string details)
@@ -95,8 +94,7 @@ public class Kube(
         => $"{nameof(Kube)} provider. Namespace:{_configuration.KubeNamespace}, Service:{_configuration.KeyOfServiceInK8s}; {message}";
 
     protected virtual IEnumerable<Service> BuildServices(KubeRegistryConfiguration configuration, EndpointsV1 endpoint)
-        => _disposed
-            ? Enumerable.Empty<Service>()
+        => _disposed ? []
             : _serviceBuilder.BuildServices(configuration, endpoint);
 
     protected virtual void Dispose(bool disposing)
