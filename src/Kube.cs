@@ -12,27 +12,19 @@ namespace Ocelot.Discovery.KubeClient;
 /// <item>GitHub: <see href="https://github.com/tintoy/dotnet-kube-client">dotnet-kube-client</see></item>
 /// </list>
 /// </remarks>
-public class Kube : IServiceDiscoveryProvider, IDisposable
+public class Kube(
+    KubeRegistryConfiguration configuration,
+    IOcelotLoggerFactory factory,
+    IKubeApiClient kubeApi,
+    IKubeServiceBuilder serviceBuilder) : IServiceDiscoveryProvider, IDisposable
 {
     private static readonly (string ResourceKind, string ResourceApiVersion) EndPointsKubeKind = KubeObjectV1.GetKubeKind<EndpointsV1>();
 
-    private readonly KubeRegistryConfiguration _configuration;
-    private readonly IOcelotLogger _logger;
-    private readonly IKubeApiClient _kubeApi;
-    private readonly IKubeServiceBuilder _serviceBuilder;
+    private readonly KubeRegistryConfiguration _configuration = configuration;
+    private readonly IOcelotLogger _logger = factory.CreateLogger<Kube>();
+    private readonly IKubeApiClient _kubeApi = kubeApi;
+    private readonly IKubeServiceBuilder _serviceBuilder = serviceBuilder;
     private bool _disposed;
-
-    public Kube(
-        KubeRegistryConfiguration configuration,
-        IOcelotLoggerFactory factory,
-        IKubeApiClient kubeApi,
-        IKubeServiceBuilder serviceBuilder)
-    {
-        _configuration = configuration;
-        _logger = factory.CreateLogger<Kube>();
-        _kubeApi = kubeApi;
-        _serviceBuilder = serviceBuilder;
-    }
 
     public virtual async Task<List<Service>> GetAsync()
     {

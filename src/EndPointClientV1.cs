@@ -4,17 +4,13 @@ using KubeClient.ResourceClients;
 
 namespace Ocelot.Discovery.KubeClient;
 
-public class EndPointClientV1 : KubeResourceClient, IEndPointClient
+public class EndPointClientV1(IKubeApiClient client) : KubeResourceClient(client), IEndPointClient
 {
     private static readonly HttpRequest EndpointsRequest =
         KubeRequest.Create("api/v1/namespaces/{Namespace}/endpoints/{ServiceName}");
 
     private static readonly HttpRequest EndpointsWatchRequest =
         KubeRequest.Create("api/v1/watch/namespaces/{Namespace}/endpoints/{ServiceName}");
-
-    public EndPointClientV1(IKubeApiClient client) : base(client)
-    {
-    }
 
     public Task<EndpointsV1> GetAsync(string serviceName, string kubeNamespace = null, CancellationToken cancellationToken = default)
     {

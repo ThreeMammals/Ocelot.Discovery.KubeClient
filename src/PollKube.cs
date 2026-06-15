@@ -7,24 +7,20 @@ namespace Ocelot.Discovery.KubeClient;
 /// <summary>
 /// It polls the <see cref="Kube"/> provider in the specified intervals and update the queue with new versions of services.
 /// </summary>
-public class PollKube : IServiceDiscoveryProvider, IDisposable
+public class PollKube(
+    int pollingInterval,
+    IOcelotLoggerFactory factory,
+    IServiceDiscoveryProvider kubeProvider) : IServiceDiscoveryProvider, IDisposable
 {
-    private readonly IOcelotLogger _logger;
-    private readonly IServiceDiscoveryProvider _provider; // TODO IDisposable
+    private readonly IOcelotLogger _logger = factory.CreateLogger<PollKube>();
+    private readonly IServiceDiscoveryProvider _provider = kubeProvider; // TODO IDisposable
     private readonly ConcurrentQueue<List<Service>> _queue = new();
     public static readonly List<Service> Empty = new(0);
 
     private Task _timing;
-    private PeriodicTimer _timer;
+    private PeriodicTimer _timer = new(TimeSpan.FromMilliseconds(pollingInterval));
     private CancellationTokenSource _cts = new();
     private volatile bool _polling, _disposed, _stopped;
-
-    public PollKube(int pollingInterval, IOcelotLoggerFactory factory, IServiceDiscoveryProvider kubeProvider)
-    {
-        _logger = factory.CreateLogger<PollKube>();
-        _provider = kubeProvider;
-        _timer = new(TimeSpan.FromMilliseconds(pollingInterval));
-    }
 
     public async Task<List<Service>> GetAsync()
     {

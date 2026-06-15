@@ -3,18 +3,13 @@ using Microsoft.Extensions.Options;
 
 namespace Ocelot.Discovery.KubeClient;
 
-public class KubeApiClientFactory : IKubeApiClientFactory
+public class KubeApiClientFactory(
+    ILoggerFactory logger,
+    IOptions<KubeClientOptions> options) : IKubeApiClientFactory
 {
-    private readonly ILoggerFactory _logger;
-    private readonly IOptions<KubeClientOptions> _options;
-    private string _serviceAccountPath;
-
-    public KubeApiClientFactory(ILoggerFactory logger, IOptions<KubeClientOptions> options)
-    {
-        _logger = logger;
-        _options = options;
-        _serviceAccountPath = KubeClientConstants.DefaultServiceAccountPath;
-    }
+    private readonly ILoggerFactory _logger = logger;
+    private readonly IOptions<KubeClientOptions> _options = options;
+    private string _serviceAccountPath = KubeClientConstants.DefaultServiceAccountPath;
 
     protected string ServiceAccountPath
     {
