@@ -1,18 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Ocelot.Configuration;
 using Ocelot.Logging;
-using Ocelot.Provider.Kubernetes.Interfaces;
-//using System.Collections.Concurrent;
 using System.Reactive.Concurrency;
 
-namespace Ocelot.Provider.Kubernetes;
+namespace Ocelot.Discovery.KubeClient;
 
 public static class KubernetesProviderFactory // TODO : IServiceDiscoveryProviderFactory
 {
-    /// <summary>String constant used for provider type definition.</summary>
-    public const string PollKube = nameof(Kubernetes.PollKube);
-    public const string WatchKube = nameof(Kubernetes.WatchKube);
-
     // private static readonly ConcurrentDictionary<string, IServiceDiscoveryProvider> _providers = new(); // TODO It must be singleton service in DI-container
     public static ServiceDiscoveryFinderDelegate Get { get; } = CreateProvider;
 
@@ -30,7 +24,7 @@ public static class KubernetesProviderFactory // TODO : IServiceDiscoveryProvide
             Scheme = route.DownstreamScheme,
         };
 
-        if (WatchKube.Equals(config.Type, StringComparison.OrdinalIgnoreCase))
+        if (nameof(WatchKube).Equals(config.Type, StringComparison.OrdinalIgnoreCase))
         {
             //return _providers.GetOrAdd(route.LoadBalancerKey,
             //    key => new WatchKube(configuration, factory, kubeClient, serviceBuilder, Scheduler.Default));
@@ -39,7 +33,7 @@ public static class KubernetesProviderFactory // TODO : IServiceDiscoveryProvide
 
         var kubeProvider = new Kube(configuration, factory, kubeClient, serviceBuilder);
         return /*_providers.GetOrAdd(route.LoadBalancerKey,
-            key =>*/ PollKube.Equals(config.Type, StringComparison.OrdinalIgnoreCase)
+            key =>*/ nameof(PollKube).Equals(config.Type, StringComparison.OrdinalIgnoreCase)
                 ? new PollKube(config.PollingInterval, factory, kubeProvider)
                 : kubeProvider; //);
     }

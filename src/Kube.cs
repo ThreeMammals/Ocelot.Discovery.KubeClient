@@ -1,10 +1,9 @@
 ﻿using KubeClient.Models;
 using Ocelot.Infrastructure.DesignPatterns;
 using Ocelot.Logging;
-using Ocelot.Provider.Kubernetes.Interfaces;
 using Ocelot.Values;
 
-namespace Ocelot.Provider.Kubernetes;
+namespace Ocelot.Discovery.KubeClient;
 
 /// <summary>Default Kubernetes service discovery provider.</summary>
 /// <remarks>

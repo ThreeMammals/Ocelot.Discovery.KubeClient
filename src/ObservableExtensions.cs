@@ -1,7 +1,7 @@
 ﻿using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 
-namespace Ocelot.Provider.Kubernetes;
+namespace Ocelot.Discovery.KubeClient;
 
 public static class ObservableExtensions
 {

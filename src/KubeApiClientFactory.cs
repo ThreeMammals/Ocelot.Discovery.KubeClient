@@ -1,8 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Ocelot.Provider.Kubernetes.Interfaces;
 
-namespace Ocelot.Provider.Kubernetes;
+namespace Ocelot.Discovery.KubeClient;
 
 public class KubeApiClientFactory : IKubeApiClientFactory
 {

@@ -1,4 +1,4 @@
-﻿namespace Ocelot.Provider.Kubernetes;
+﻿namespace Ocelot.Discovery.KubeClient;
 
 public class KubeRegistryConfiguration
 {

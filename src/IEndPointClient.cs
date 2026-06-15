@@ -1,7 +1,7 @@
 ﻿using KubeClient.Models;
 using KubeClient.ResourceClients;
 
-namespace Ocelot.Provider.Kubernetes.Interfaces;
+namespace Ocelot.Discovery.KubeClient;
 
 public interface IEndPointClient : IKubeResourceClient
 {

@@ -1,6 +1,4 @@
-﻿using Ocelot.Provider.Kubernetes.Interfaces;
-
-namespace Ocelot.Provider.Kubernetes;
+﻿namespace Ocelot.Discovery.KubeClient;
 
 public static class KubeApiClientExtensions
 {

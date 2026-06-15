@@ -1,9 +1,8 @@
 ﻿using KubeClient.Models;
 using Ocelot.Logging;
-using Ocelot.Provider.Kubernetes.Interfaces;
 using Ocelot.Values;
 
-namespace Ocelot.Provider.Kubernetes;
+namespace Ocelot.Discovery.KubeClient;
 
 public class KubeServiceBuilder : IKubeServiceBuilder
 {

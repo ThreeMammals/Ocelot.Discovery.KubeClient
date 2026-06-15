@@ -1,11 +1,10 @@
 ﻿using KubeClient.Models;
 using Ocelot.Logging;
-using Ocelot.Provider.Kubernetes.Interfaces;
 using Ocelot.Values;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 
-namespace Ocelot.Provider.Kubernetes;
+namespace Ocelot.Discovery.KubeClient;
 
 public class WatchKube : IServiceDiscoveryProvider, IDisposable
 {

@@ -1,7 +1,7 @@
 ﻿using KubeClient.Models;
 using Ocelot.Values;
 
-namespace Ocelot.Provider.Kubernetes.Interfaces;
+namespace Ocelot.Discovery.KubeClient;
 
 public interface IKubeServiceBuilder
 {

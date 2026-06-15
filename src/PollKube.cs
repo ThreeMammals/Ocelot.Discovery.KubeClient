@@ -1,9 +1,8 @@
 ﻿using Ocelot.Logging;
 using Ocelot.Values;
 using System.Collections.Concurrent;
-using YamlDotNet.Core.Tokens;
 
-namespace Ocelot.Provider.Kubernetes;
+namespace Ocelot.Discovery.KubeClient;
 
 /// <summary>
 /// It polls the <see cref="Kube"/> provider in the specified intervals and update the queue with new versions of services.

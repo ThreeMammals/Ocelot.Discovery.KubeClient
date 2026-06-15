@@ -1,4 +1,4 @@
-﻿namespace Ocelot.Provider.Kubernetes.Interfaces;
+﻿namespace Ocelot.Discovery.KubeClient;
 
 public interface IKubeApiClientFactory
 {

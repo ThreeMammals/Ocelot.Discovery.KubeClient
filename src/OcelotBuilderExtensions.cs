@@ -4,12 +4,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Ocelot.Configuration.File;
 using Ocelot.DependencyInjection;
-using Ocelot.Provider.Kubernetes.Interfaces;
 using System.Net;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 
-namespace Ocelot.Provider.Kubernetes;
+namespace Ocelot.Discovery.KubeClient;
 
 public static class OcelotBuilderExtensions
 {
