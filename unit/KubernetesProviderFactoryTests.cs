@@ -29,7 +29,7 @@ public sealed class KubernetesProviderFactoryTests : KubernetesProviderFactoryTe
         var endpointClient = new Mock<IEndPointClient>();
         endpointClient.Setup(x => x.Watch(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .Returns(Mock.Of<IObservable<IResourceEventV1<EndpointsV1>>>());
-        
+
         var kubeClient = new Mock<IKubeApiClient>();
         kubeClient.Setup(x => x.ResourceClient(It.IsAny<Func<IKubeApiClient, IEndPointClient>>()))
             .Returns(endpointClient.Object);
@@ -43,7 +43,7 @@ public sealed class KubernetesProviderFactoryTests : KubernetesProviderFactoryTe
         Assert.NotNull(actual);
         Assert.IsType(providerType, actual);
     }
-    
+
     [Theory]
     [Trait("Bug", "977")]
     [InlineData(nameof(Kube))]
@@ -119,92 +119,92 @@ public sealed class KubernetesProviderFactoryTests : KubernetesProviderFactoryTe
         configureOptions.Configure(opts);
         Assert.Equal("myUser", opts.Username);
     }
-}
 
-// [Collection(nameof(SequentialTests))]
-public sealed class KubernetesProviderFactorySequentialTests : KubernetesProviderFactoryTestsBase
-{
-    [Fact]
-    [Trait("Feat", "2256")]
-    public async Task CreateProvider_KubeApiClientFactory_ShouldCreateFromPodServiceAccount()
+    [Collection(nameof(SequentialTests))]
+    public sealed class Sequential : KubernetesProviderFactoryTestsBase
     {
-        // Arrange
-        _builder.AddKubernetes(true); // !!!
-        var serviceAccountPath = Path.Combine(AppContext.BaseDirectory, TestID);
-        var stub = new FakeKubeApiClientFactory(null, null, serviceAccountPath);
-        var original = _builder.Services.First(x => x.ServiceType == typeof(IKubeApiClientFactory));
-        var descriptor = ServiceDescriptor.Describe(original.ServiceType, _ => stub, original.Lifetime);
-        _builder.Services.Replace(descriptor);
-
-        var expectedHost = IPAddress.Loopback.ToString();
-        Environment.SetEnvironmentVariable("KUBERNETES_SERVICE_HOST", expectedHost);
-        int expectedPort = PortFinder.GetRandomPort();
-        Environment.SetEnvironmentVariable("KUBERNETES_SERVICE_PORT", expectedPort.ToString());
-
-        folders.Add(serviceAccountPath);
-        if (!Directory.Exists(serviceAccountPath))
-        {
-            Directory.CreateDirectory(serviceAccountPath);
-        }
-
-        var path = Path.Combine(serviceAccountPath, "namespace");
-        await File.WriteAllTextAsync(path, nameof(CreateProvider_KubeApiClientFactory_ShouldCreateFromPodServiceAccount), TestContext.Current.CancellationToken);
-        files.Add(path);
-
-        path = Path.Combine(serviceAccountPath, "token");
-        await File.WriteAllTextAsync(path, TestID, TestContext.Current.CancellationToken);
-        files.Add(path);
-
-        path = Path.Combine(serviceAccountPath, "ca.crt");
-        await FakeKubeApiClientFactory.CreateCertificate(path);
-        files.Add(path);
-
-        try
-        {
-            // Act
-            var actualProvider = CreateProvider(nameof(Kube));
-
-            // Assert
-            Assert.NotNull(actualProvider);
-            Assert.IsType<Kube>(actualProvider);
-            Assert.NotNull(stub);
-            Assert.NotNull(stub.Actual);
-            Assert.NotNull(stub.Actual.ApiEndPoint);
-            Assert.Equal(expectedHost, stub.Actual.ApiEndPoint.Host);
-            Assert.Equal(expectedPort, stub.Actual.ApiEndPoint.Port);
-            Assert.Equal(nameof(CreateProvider_KubeApiClientFactory_ShouldCreateFromPodServiceAccount), stub.Actual.DefaultNamespace);
-        }
-        finally
-        {
-            Environment.SetEnvironmentVariable("KUBERNETES_SERVICE_PORT", null);
-        }
-    }
-
-    [Fact]
-    [Trait("Bug", "2299")]
-    public void Bug2299_StepsToReproduce_ShouldNotThrowExceptionByPathCombine()
-    {
-        try
+        [Fact]
+        [Trait("Feat", "2256")]
+        public async Task CreateProvider_KubeApiClientFactory_ShouldCreateFromPodServiceAccount()
         {
             // Arrange
-            _builder.AddKubernetes(); // !!!
-            Environment.SetEnvironmentVariable("KUBERNETES_SERVICE_HOST", "localhost");
-            Environment.SetEnvironmentVariable("KUBERNETES_SERVICE_PORT", PortFinder.GetRandomPort().ToString());
+            _builder.AddKubernetes(true); // !!!
+            var serviceAccountPath = Path.Combine(AppContext.BaseDirectory, TestID);
+            var stub = new FakeKubeApiClientFactory(null, null, serviceAccountPath);
+            var original = _builder.Services.First(x => x.ServiceType == typeof(IKubeApiClientFactory));
+            var descriptor = ServiceDescriptor.Describe(original.ServiceType, _ => stub, original.Lifetime);
+            _builder.Services.Replace(descriptor);
 
-            // Act
-            var ex = Assert.ThrowsAny<Exception>(
-                () => CreateProvider(nameof(Kube)));
+            var expectedHost = IPAddress.Loopback.ToString();
+            Environment.SetEnvironmentVariable("KUBERNETES_SERVICE_HOST", expectedHost);
+            int expectedPort = PortFinder.GetRandomPort();
+            Environment.SetEnvironmentVariable("KUBERNETES_SERVICE_PORT", expectedPort.ToString());
 
-            // Assert
-            Assert.IsNotType<ArgumentNullException>(ex);
-            Assert.IsType<DirectoryNotFoundException>(ex);
-            Assert.Contains("at KubeClient.KubeClientOptions.FromPodServiceAccount(String serviceAccountPath)", ex.StackTrace);
-            Assert.DoesNotContain("at System.IO.Path.Combine(String path1, String path2)", ex.StackTrace);
-            Assert.NotEqual("Value cannot be null. (Parameter 'path1')", ex.Message);
+            folders.Add(serviceAccountPath);
+            if (!Directory.Exists(serviceAccountPath))
+            {
+                Directory.CreateDirectory(serviceAccountPath);
+            }
+
+            var path = Path.Combine(serviceAccountPath, "namespace");
+            await File.WriteAllTextAsync(path, nameof(CreateProvider_KubeApiClientFactory_ShouldCreateFromPodServiceAccount), TestContext.Current.CancellationToken);
+            files.Add(path);
+
+            path = Path.Combine(serviceAccountPath, "token");
+            await File.WriteAllTextAsync(path, TestID, TestContext.Current.CancellationToken);
+            files.Add(path);
+
+            path = Path.Combine(serviceAccountPath, "ca.crt");
+            await FakeKubeApiClientFactory.CreateCertificate(path);
+            files.Add(path);
+
+            try
+            {
+                // Act
+                var actualProvider = CreateProvider(nameof(Kube));
+
+                // Assert
+                Assert.NotNull(actualProvider);
+                Assert.IsType<Kube>(actualProvider);
+                Assert.NotNull(stub);
+                Assert.NotNull(stub.Actual);
+                Assert.NotNull(stub.Actual.ApiEndPoint);
+                Assert.Equal(expectedHost, stub.Actual.ApiEndPoint.Host);
+                Assert.Equal(expectedPort, stub.Actual.ApiEndPoint.Port);
+                Assert.Equal(nameof(CreateProvider_KubeApiClientFactory_ShouldCreateFromPodServiceAccount), stub.Actual.DefaultNamespace);
+            }
+            finally
+            {
+                Environment.SetEnvironmentVariable("KUBERNETES_SERVICE_PORT", null);
+            }
         }
-        finally
+
+        [Fact]
+        [Trait("Bug", "2299")]
+        public void Bug2299_StepsToReproduce_ShouldNotThrowExceptionByPathCombine()
         {
-            Environment.SetEnvironmentVariable("KUBERNETES_SERVICE_PORT", null);
+            try
+            {
+                // Arrange
+                _builder.AddKubernetes(); // !!!
+                Environment.SetEnvironmentVariable("KUBERNETES_SERVICE_HOST", "localhost");
+                Environment.SetEnvironmentVariable("KUBERNETES_SERVICE_PORT", PortFinder.GetRandomPort().ToString());
+
+                // Act
+                var ex = Assert.ThrowsAny<Exception>(
+                    () => CreateProvider(nameof(Kube)));
+
+                // Assert
+                Assert.IsNotType<ArgumentNullException>(ex);
+                Assert.IsType<DirectoryNotFoundException>(ex);
+                Assert.Contains("at KubeClient.KubeClientOptions.FromPodServiceAccount(String serviceAccountPath)", ex.StackTrace);
+                Assert.DoesNotContain("at System.IO.Path.Combine(String path1, String path2)", ex.StackTrace);
+                Assert.NotEqual("Value cannot be null. (Parameter 'path1')", ex.Message);
+            }
+            finally
+            {
+                Environment.SetEnvironmentVariable("KUBERNETES_SERVICE_PORT", null);
+            }
         }
     }
 }

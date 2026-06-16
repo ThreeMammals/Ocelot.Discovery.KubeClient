@@ -27,17 +27,22 @@ public class EndpointClientV1Tests
             .Returns(_endpointClient);
     }
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    public async Task GetAsync_WhenServiceIsNullOrEmpty_ThrowsArgumentException(string serviceName)
+    [Fact]
+    public async Task GetAsync_WhenServiceIsNullOrEmpty_ThrowsArgumentException()
     {
-        // Act
-        var watchCall = () => _endpointClient.GetAsync(serviceName, null, CancellationToken.None);
+        // Arrange
+        string serviceName = null;
+        Task<EndpointsV1> watchCall()
+            => _endpointClient.GetAsync(serviceName, null, CancellationToken.None);
 
-        // Assert
-        var e = await Assert.ThrowsAsync<ArgumentException>(() => watchCall());
+        // Act, Assert
+        var e = await Assert.ThrowsAsync<ArgumentNullException>(watchCall);
         Assert.Equal(nameof(serviceName), e.ParamName);
+
+        // Act, Assert
+        serviceName = string.Empty;
+        var ex = await Assert.ThrowsAsync<ArgumentException>(watchCall);
+        Assert.Equal(nameof(serviceName), ex.ParamName);
     }
 
     [Theory]
@@ -68,17 +73,22 @@ public class EndpointClientV1Tests
         Assert.True(request.TemplateParameters.ContainsKey("ServiceName"));
     }
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    public void Watch_WhenServiceIsNullOrEmpty_ThrowsArgumentException(string serviceName)
+    [Fact]
+    public void Watch_WhenServiceIsNullOrEmpty_ThrowsArgumentException()
     {
-        // Act
-        var watchCall = () => _endpointClient.Watch(serviceName, null, CancellationToken.None);
-        
+        // Arrange, Act
+        string serviceName = null;
+        IObservable<IResourceEventV1<EndpointsV1>> watchCall()
+            => _endpointClient.Watch(serviceName, null, CancellationToken.None);
+
         // Assert
-        var e = Assert.Throws<ArgumentException>(() => watchCall());
+        var e = Assert.Throws<ArgumentNullException>(watchCall);
         Assert.Equal(nameof(serviceName), e.ParamName);
+
+        // Act, Assert
+        serviceName = string.Empty;
+        var ex = Assert.Throws<ArgumentException>(watchCall);
+        Assert.Equal(nameof(serviceName), ex.ParamName);
     }
 
     [Fact]
