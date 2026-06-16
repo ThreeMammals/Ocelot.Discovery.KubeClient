@@ -6,7 +6,7 @@ namespace Ocelot.Discovery.KubeClient.UnitTests;
 
 [Trait("Feat", "2168")]
 [Trait("PR", "2174")] // https://github.com/ThreeMammals/Ocelot/pull/2174
-public class ObservableExtensionsTests
+public class ObservableExtensionsTests : UnitTest
 {
     private readonly TestScheduler _testScheduler = new();
     
@@ -39,7 +39,7 @@ public class ObservableExtensionsTests
             {
                 _testScheduler.Start();
             }
-        }, TestContext.Current.CancellationToken);
+        }, CancelMe);
         
         var result = await observable.RetryAfter(delaySeconds, _testScheduler).FirstAsync();
         await cts.CancelAsync();

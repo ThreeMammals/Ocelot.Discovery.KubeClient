@@ -147,11 +147,11 @@ public sealed class KubernetesProviderFactoryTests : KubernetesProviderFactoryTe
             }
 
             var path = Path.Combine(serviceAccountPath, "namespace");
-            await File.WriteAllTextAsync(path, nameof(CreateProvider_KubeApiClientFactory_ShouldCreateFromPodServiceAccount), TestContext.Current.CancellationToken);
+            await File.WriteAllTextAsync(path, TestName(), CancelMe);
             files.Add(path);
 
             path = Path.Combine(serviceAccountPath, "token");
-            await File.WriteAllTextAsync(path, TestID, TestContext.Current.CancellationToken);
+            await File.WriteAllTextAsync(path, TestID, CancelMe);
             files.Add(path);
 
             path = Path.Combine(serviceAccountPath, "ca.crt");
@@ -171,7 +171,7 @@ public sealed class KubernetesProviderFactoryTests : KubernetesProviderFactoryTe
                 Assert.NotNull(stub.Actual.ApiEndPoint);
                 Assert.Equal(expectedHost, stub.Actual.ApiEndPoint.Host);
                 Assert.Equal(expectedPort, stub.Actual.ApiEndPoint.Port);
-                Assert.Equal(nameof(CreateProvider_KubeApiClientFactory_ShouldCreateFromPodServiceAccount), stub.Actual.DefaultNamespace);
+                Assert.Equal(TestName(), stub.Actual.DefaultNamespace);
             }
             finally
             {

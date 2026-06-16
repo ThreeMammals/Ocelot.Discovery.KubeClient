@@ -47,11 +47,11 @@ public sealed class KubeApiClientFactoryTests : KubeApiClientFactoryTestsBase
             }
 
             var path = Path.Combine(serviceAccountPath, "namespace");
-            await File.WriteAllTextAsync(path, nameof(Get_UsePodServiceAccount_ShouldCreateFromPodServiceAccount), TestContext.Current.CancellationToken);
+            await File.WriteAllTextAsync(path, TestName(), CancelMe);
             files.Add(path);
 
             path = Path.Combine(serviceAccountPath, "token");
-            await File.WriteAllTextAsync(path, TestID, TestContext.Current.CancellationToken);
+            await File.WriteAllTextAsync(path, TestID, CancelMe);
             files.Add(path);
 
             path = Path.Combine(serviceAccountPath, "ca.crt");
@@ -73,7 +73,7 @@ public sealed class KubeApiClientFactoryTests : KubeApiClientFactoryTestsBase
                 Assert.NotNull(actual.ApiEndPoint);
                 Assert.Equal(expectedHost, actual.ApiEndPoint.Host);
                 Assert.Equal(expectedPort, actual.ApiEndPoint.Port);
-                Assert.Equal(nameof(Get_UsePodServiceAccount_ShouldCreateFromPodServiceAccount), actual.DefaultNamespace);
+                Assert.Equal(TestName(), actual.DefaultNamespace);
                 Assert.NotNull(actual.LoggerFactory);
                 Assert.Equal(logger.Object, actual.LoggerFactory);
             }
