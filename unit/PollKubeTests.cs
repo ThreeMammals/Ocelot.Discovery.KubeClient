@@ -35,6 +35,8 @@ public sealed class PollKubeTests : UnitTest, IDisposable
 
     [Fact]
     [Trait("PR", "772")] // https://github.com/ThreeMammals/Ocelot/pull/772
+    [Trait("Commit", "44dccf1")] // https://github.com/ThreeMammals/Ocelot/commit/44dccf1fce35863f9ab3739fb9133f1227c1012a
+    [Trait("Release", "13.5.0")] // https://github.com/ThreeMammals/Ocelot/releases/tag/13.5.0
     public async Task Should_return_service_from_kube()
     {
         // Arrange
@@ -70,8 +72,11 @@ public sealed class PollKubeTests : UnitTest, IDisposable
         return services;
     }
 
+    #region PR 2335
+
     [Fact(Skip = "Require coverage checks")]
     [Trait("Bug", "2304")] // https://github.com/ThreeMammals/Ocelot/issues/2304
+    [Trait("PR", "2335")] // https://github.com/ThreeMammals/Ocelot/pull/2335
     public async Task OnTimerCallbackAsync_AvoidPolling_WhenAlreadyPolling()
     {
         // Arrange
@@ -266,4 +271,5 @@ public sealed class PollKubeTests : UnitTest, IDisposable
         // Assert
         Assert.True(task.IsCompletedSuccessfully); // Task ended without bubbling up the exception
     }
+    #endregion PR 2335
 }

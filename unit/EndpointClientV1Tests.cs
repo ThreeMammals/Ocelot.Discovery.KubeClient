@@ -8,8 +8,10 @@ using System.Runtime.CompilerServices;
 
 namespace Ocelot.Discovery.KubeClient.UnitTests;
 
-[Trait("Feat", "2168")]
+[Trait("Feat", "2168")] // https://github.com/ThreeMammals/Ocelot/discussions/2168
 [Trait("PR", "2174")] // https://github.com/ThreeMammals/Ocelot/pull/2174
+[Trait("Commit", "8143d56")] // https://github.com/ThreeMammals/Ocelot/commit/8143d5608f354262d9a2a08e12baf36ef5e49eb0
+[Trait("Release", "24.1.0")] // https://github.com/ThreeMammals/Ocelot/releases/tag/24.1.0
 public class EndpointClientV1Tests
 {
     private readonly EndPointClientV1 _endpointClient;

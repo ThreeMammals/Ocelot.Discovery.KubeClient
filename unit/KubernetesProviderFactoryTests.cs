@@ -18,10 +18,13 @@ namespace Ocelot.Discovery.KubeClient.UnitTests;
 public sealed class KubernetesProviderFactoryTests : KubernetesProviderFactoryTestsBase
 {
     [Theory]
-    [Trait("Bug", "977")]
     [InlineData(typeof(Kube))]
     [InlineData(typeof(PollKube))]
     [InlineData(typeof(WatchKube))]
+    [Trait("Bug", "977")] // https://github.com/ThreeMammals/Ocelot/issues/977
+    [Trait("PR", "2180")] // https://github.com/ThreeMammals/Ocelot/pull/2180
+    [Trait("Commit", "8b633af")] // https://github.com/ThreeMammals/Ocelot/commit/8b633af5eee66e74efe0e85e38413a1346226f7c
+    [Trait("Release", "23.3.6")] // https://github.com/ThreeMammals/Ocelot/releases/tag/23.3.6
     public void CreateProvider_ClientHasOriginalLifetimeWithEnabledScopesValidation_ShouldResolveProvider(Type providerType)
     {
         // Arrange
@@ -45,10 +48,13 @@ public sealed class KubernetesProviderFactoryTests : KubernetesProviderFactoryTe
     }
 
     [Theory]
-    [Trait("Bug", "977")]
     [InlineData(nameof(Kube))]
     [InlineData(nameof(PollKube))]
     [InlineData(nameof(WatchKube))]
+    [Trait("Bug", "977")] // https://github.com/ThreeMammals/Ocelot/issues/977
+    [Trait("PR", "2180")] // https://github.com/ThreeMammals/Ocelot/pull/2180
+    [Trait("Commit", "8b633af")] // https://github.com/ThreeMammals/Ocelot/commit/8b633af5eee66e74efe0e85e38413a1346226f7c
+    [Trait("Release", "23.3.6")] // https://github.com/ThreeMammals/Ocelot/releases/tag/23.3.6
     public void CreateProvider_ClientHasScopedLifetimeWithEnabledScopesValidation_ShouldFailToResolve(string providerType)
     {
         // Arrange
@@ -67,7 +73,10 @@ public sealed class KubernetesProviderFactoryTests : KubernetesProviderFactoryTe
     }
 
     [Fact]
-    [Trait("Feat", "2256")]
+    [Trait("Feat", "2256")] // https://github.com/ThreeMammals/Ocelot/discussions/2256
+    [Trait("PR", "2257")] // https://github.com/ThreeMammals/Ocelot/pull/2257
+    [Trait("Commit", "4b6b96a")] // https://github.com/ThreeMammals/Ocelot/commit/4b6b96af6061ff2ea817c5408074baa1ab387735
+    [Trait("Release", "24.0.0")] // https://github.com/ThreeMammals/Ocelot/releases/tag/24.0.0
     public void CreateProvider_KubeApiClientFactory_ShouldCreateFromOptions()
     {
         // Arrange
@@ -94,7 +103,10 @@ public sealed class KubernetesProviderFactoryTests : KubernetesProviderFactoryTe
     }
 
     [Fact]
-    [Trait("Feat", "2256")]
+    [Trait("Feat", "2256")] // https://github.com/ThreeMammals/Ocelot/discussions/2256
+    [Trait("PR", "2257")] // https://github.com/ThreeMammals/Ocelot/pull/2257
+    [Trait("Commit", "4b6b96a")] // https://github.com/ThreeMammals/Ocelot/commit/4b6b96af6061ff2ea817c5408074baa1ab387735
+    [Trait("Release", "24.0.0")] // https://github.com/ThreeMammals/Ocelot/releases/tag/24.0.0
     public void CreateProvider_HasConfigureOptions_ShouldCallConfigure()
     {
         // Arrange
@@ -124,7 +136,10 @@ public sealed class KubernetesProviderFactoryTests : KubernetesProviderFactoryTe
     public sealed class Sequential : KubernetesProviderFactoryTestsBase
     {
         [Fact]
-        [Trait("Feat", "2256")]
+        [Trait("Feat", "2256")] // https://github.com/ThreeMammals/Ocelot/discussions/2256
+        [Trait("PR", "2257")] // https://github.com/ThreeMammals/Ocelot/pull/2257
+        [Trait("Commit", "4b6b96a")] // https://github.com/ThreeMammals/Ocelot/commit/4b6b96af6061ff2ea817c5408074baa1ab387735
+        [Trait("Release", "24.0.0")] // https://github.com/ThreeMammals/Ocelot/releases/tag/24.0.0
         public async Task CreateProvider_KubeApiClientFactory_ShouldCreateFromPodServiceAccount()
         {
             // Arrange
@@ -180,7 +195,10 @@ public sealed class KubernetesProviderFactoryTests : KubernetesProviderFactoryTe
         }
 
         [Fact]
-        [Trait("Bug", "2299")]
+        [Trait("Bug", "2299")] // https://github.com/ThreeMammals/Ocelot/issues/2299
+        [Trait("PR", "2302")] // https://github.com/ThreeMammals/Ocelot/pull/2302
+        [Trait("Commit", "0fd0c6e")] // https://github.com/ThreeMammals/Ocelot/commit/0fd0c6ea981ccba68fd253eafefaac1bfc2018b7
+        [Trait("Release", "24.0.1")] // https://github.com/ThreeMammals/Ocelot/releases/tag/24.0.1
         public void Bug2299_StepsToReproduce_ShouldNotThrowExceptionByPathCombine()
         {
             try

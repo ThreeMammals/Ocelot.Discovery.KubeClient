@@ -4,7 +4,10 @@ using Ocelot.Logging;
 
 namespace Ocelot.Discovery.KubeClient.UnitTests;
 
-[Trait("Feat", "1967")]
+[Trait("Feat", "1967")] // https://github.com/ThreeMammals/Ocelot/issues/1967
+[Trait("PR", "2052")] // https://github.com/ThreeMammals/Ocelot/pull/2052
+[Trait("Commit", "0b247af")] // https://github.com/ThreeMammals/Ocelot/commit/0b247afdf0c9cba7fd37f603102d151dc7e74487
+[Trait("Release", "23.3.0")] // https://github.com/ThreeMammals/Ocelot/releases/tag/23.3.0
 public sealed class KubeServiceCreatorTests
 {
     private readonly Mock<IOcelotLoggerFactory> factory;

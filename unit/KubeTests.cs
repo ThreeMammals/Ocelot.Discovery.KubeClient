@@ -10,8 +10,10 @@ namespace Ocelot.Discovery.KubeClient.UnitTests;
 /// Tests for Kube service discovery provider error handling, particularly around 
 /// ObjectDisposedException scenarios that occur during shutdown.
 /// </summary>
-[Trait("Release", "25.0.0")]
+
 [Trait("PR", "2399")] // https://github.com/ThreeMammals/Ocelot/pull/2399
+[Trait("Commit", "6353f8b")] // https://github.com/ThreeMammals/Ocelot/commit/6353f8ba3c0802119bb804a356a272e1c0827bd1
+[Trait("Release", "25.0.0")] // https://github.com/ThreeMammals/Ocelot/releases/tag/25.0.0
 public sealed class KubeTests : IDisposable
 {
     private readonly Mock<IOcelotLoggerFactory> _factory = new();

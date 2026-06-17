@@ -32,7 +32,8 @@ public class OcelotBuilderExtensionsTests : UnitTest
     }
 
     [Fact]
-    [Trait("Feat", "345")]
+    [Trait("Feat", "345")] // https://github.com/ThreeMammals/Ocelot/issues/345
+    [Trait("PR", "772")] // https://github.com/ThreeMammals/Ocelot/pull/772
     public void AddKubernetes_NoExceptions_ShouldSetUpKubernetes()
     {
         // Arrange
@@ -46,8 +47,8 @@ public class OcelotBuilderExtensionsTests : UnitTest
     }
 
     [Fact]
-    [Trait("Bug", "977")]
-    [Trait("PR", "2180")]
+    [Trait("Bug", "977")] // https://github.com/ThreeMammals/Ocelot/issues/977
+    [Trait("PR", "2180")] // https://github.com/ThreeMammals/Ocelot/pull/2180
     public void AddKubernetes_DefaultServices_HappyPath()
     {
         // Arrange, Act
@@ -58,7 +59,10 @@ public class OcelotBuilderExtensionsTests : UnitTest
     }
 
     [Fact]
-    [Trait("Feat", "2256")]
+    [Trait("Feat", "2256")] // https://github.com/ThreeMammals/Ocelot/discussions/2256
+    [Trait("PR", "2257")] // https://github.com/ThreeMammals/Ocelot/pull/2257
+    [Trait("Commit", "4b6b96a")] // https://github.com/ThreeMammals/Ocelot/commit/4b6b96af6061ff2ea817c5408074baa1ab387735
+    [Trait("Release", "24.0.0")] // https://github.com/ThreeMammals/Ocelot/releases/tag/24.0.0
     public void AddKubernetes_NoAction_HappyPath()
     {
         // Arrange

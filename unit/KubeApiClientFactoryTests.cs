@@ -5,10 +5,13 @@ using System.Net;
 
 namespace Ocelot.Discovery.KubeClient.UnitTests;
 
+[Trait("Bug", "2299")] // https://github.com/ThreeMammals/Ocelot/issues/2299
+[Trait("PR", "2302")] // https://github.com/ThreeMammals/Ocelot/pull/2302
+[Trait("Commit", "0fd0c6e")] // https://github.com/ThreeMammals/Ocelot/commit/0fd0c6ea981ccba68fd253eafefaac1bfc2018b7
+[Trait("Release", "24.0.1")] // https://github.com/ThreeMammals/Ocelot/releases/tag/24.0.1
 public sealed class KubeApiClientFactoryTests : KubeApiClientFactoryTestsBase
 {
     [Theory]
-    [Trait("Bug", "2299")]
     [InlineData(null)]
     [InlineData("")]
     public void ServiceAccountPath_NoValue_FallbackedToDefValue(string serviceAccountPath)
@@ -25,11 +28,14 @@ public sealed class KubeApiClientFactoryTests : KubeApiClientFactoryTestsBase
         Assert.Equal(KubeClientConstants.DefaultServiceAccountPath, actual);
     }
 
+    [Trait("Bug", "2299")] // https://github.com/ThreeMammals/Ocelot/issues/2299
+    [Trait("PR", "2302")] // https://github.com/ThreeMammals/Ocelot/pull/2302
+    [Trait("Commit", "0fd0c6e")] // https://github.com/ThreeMammals/Ocelot/commit/0fd0c6ea981ccba68fd253eafefaac1bfc2018b7
+    [Trait("Release", "24.0.1")] // https://github.com/ThreeMammals/Ocelot/releases/tag/24.0.1
     [Collection(nameof(SequentialTests))]
     public class Sequential : KubeApiClientFactoryTestsBase
     {
         [Fact]
-        [Trait("Bug", "2299")]
         public async Task Get_UsePodServiceAccount_ShouldCreateFromPodServiceAccount()
         {
             // Arrange
