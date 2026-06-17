@@ -52,7 +52,7 @@ public class WatchKubeTests
                     new ServiceHostAndPort(x.Addresses[i].Hostname, x.Ports[i].Port!.Value),
                     i.ToString(),
                     endpoints.ApiVersion,
-                    Enumerable.Empty<string>()));
+                    []));
             });
         _watch = x => x.Watch(It.Is<string>(s => s == _config.KeyOfServiceInK8s), It.IsAny<string>(), It.IsAny<CancellationToken>());
     }

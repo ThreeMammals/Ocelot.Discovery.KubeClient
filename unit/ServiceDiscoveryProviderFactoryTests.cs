@@ -222,8 +222,8 @@ public class ServiceDiscoveryProviderFactoryTests : UnitTest
         public Task<List<Service>> GetAsync() => null;
     }
 
-    private readonly List<string> _logInformationMessages = new();
-    private readonly List<string> _logWarningMessages = new();
+    private readonly List<string> _logInformationMessages = [];
+    private readonly List<string> _logWarningMessages = [];
 
     private void WhenIGetTheServiceProvider(ServiceProviderConfiguration serviceConfig, DownstreamRoute route)
     {

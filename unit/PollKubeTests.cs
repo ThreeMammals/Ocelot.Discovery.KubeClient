@@ -40,7 +40,7 @@ public sealed class PollKubeTests : UnitTest, IDisposable
     public async Task Should_return_service_from_kube()
     {
         // Arrange
-        var service = new Service(string.Empty, new ServiceHostAndPort(string.Empty, 0), string.Empty, string.Empty, new List<string>());
+        var service = new Service(string.Empty, new ServiceHostAndPort(string.Empty, 0), string.Empty, string.Empty, []);
         List<Service> services = [service];
         _discoveryProvider.Setup(x => x.GetAsync()).ReturnsAsync(services);
         _provider = new PollKube(PollingIntervalMs, _factory.Object, _discoveryProvider.Object);
@@ -81,7 +81,7 @@ public sealed class PollKubeTests : UnitTest, IDisposable
     {
         // Arrange
         int pollingInterval = 100;
-        var service = new Service(string.Empty, new ServiceHostAndPort(string.Empty, 0), string.Empty, string.Empty, new List<string>());
+        var service = new Service(string.Empty, new ServiceHostAndPort(string.Empty, 0), string.Empty, string.Empty, []);
         List<Service> services = [service];
         var slowPolling = Task.Delay(pollingInterval + 50, CancelMe)
             .ContinueWith(x => services, CancelMe);
@@ -112,7 +112,7 @@ public sealed class PollKubeTests : UnitTest, IDisposable
     {
         // Arrange
         int pollingInterval = 100;
-        var service = new Service(string.Empty, new ServiceHostAndPort(string.Empty, 0), string.Empty, string.Empty, new List<string>());
+        var service = new Service(string.Empty, new ServiceHostAndPort(string.Empty, 0), string.Empty, string.Empty, []);
         List<Service> services = [service];
         var slowPolling = Task.Delay(pollingInterval + 50, CancelMe).ContinueWith(x => services, CancelMe);
         _discoveryProvider.Setup(x => x.GetAsync()).Returns(slowPolling);
@@ -173,7 +173,7 @@ public sealed class PollKubeTests : UnitTest, IDisposable
         var queue = (ConcurrentQueue<List<Service>>)queueField.GetValue(_provider);
         for (int i = 0; i < 4; i++)
         {
-            queue.Enqueue(new List<Service>());
+            queue.Enqueue([]);
         }
 
         // Act
@@ -235,7 +235,7 @@ public sealed class PollKubeTests : UnitTest, IDisposable
         // Act
         var task = (Task<List<Service>>)method.Invoke(_provider, [innerCts.Token]);
         innerCts.Cancel();
-        tcs.SetResult(new List<Service>());
+        tcs.SetResult([]);
         var actual = await task;
 
         // Assert
@@ -255,7 +255,7 @@ public sealed class PollKubeTests : UnitTest, IDisposable
     public async Task StartAsync_WhenProviderDisposed_CatchesOperationCanceledException()
     {
         // Arrange
-        _discoveryProvider.Setup(x => x.GetAsync()).ReturnsAsync(new List<Service>());
+        _discoveryProvider.Setup(x => x.GetAsync()).ReturnsAsync([]);
         _provider = new PollKube(10_000, _factory.Object, _discoveryProvider.Object);
         var method = _provider.GetType().GetMethod("StartAsync", BindingFlags.Instance | BindingFlags.NonPublic);
         var ctsField = _provider.GetType().GetField("_cts", BindingFlags.Instance | BindingFlags.NonPublic);

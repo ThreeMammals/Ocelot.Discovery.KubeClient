@@ -197,7 +197,7 @@ public sealed class KubeTests : IDisposable
             .Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(validEndpoint);
 
-        var expectedServices = new List<Service> { new("test-service", new("192.168.1.1", 80), string.Empty, string.Empty, Array.Empty<string>()) };
+        var expectedServices = new List<Service> { new("test-service", new("192.168.1.1", 80), string.Empty, string.Empty, []) };
         _serviceBuilder
             .Setup(x => x.BuildServices(It.IsAny<KubeRegistryConfiguration>(), It.IsAny<EndpointsV1>()))
             .Returns(expectedServices);
