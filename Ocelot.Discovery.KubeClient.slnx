@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="acceptance/Ocelot.Discovery.KubeClient.Acceptance.csproj" />
   <Project Path="src/Ocelot.Discovery.KubeClient.csproj" />
   <Project Path="unit/Ocelot.Discovery.KubeClient.UnitTests.csproj" />
 </Solution>
