@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <!-- Background rounded square (like a NuGet package style) -->
+  <rect x="4" y="4" width="120" height="120" rx="24" ry="24" fill="#004880" />
+  
+  <!-- Inner accent shape -->
+  <rect x="16" y="16" width="96" height="96" rx="16" ry="16" fill="#1A6FB0" />
+  
+  <!-- "K" letter -->
+  <text x="30" y="80" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="52" fill="#FFFFFF">
+    K
+  </text>
+  
+  <!-- "C" letter -->
+  <text x="62" y="80" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="52" fill="#6DA7FF">
+    C
+  </text>
+  
+  <!-- Subtle dot indicator (like a version/badge element) -->
+  <circle cx="100" cy="30" r="6" fill="#6DA7FF" opacity="0.8" />
+</svg>
