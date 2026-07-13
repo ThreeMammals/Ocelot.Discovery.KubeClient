@@ -18,7 +18,6 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <Authors>Tom Pallister, Raman Maksimchuk</Authors>
     <Company>Three Mammals</Company>
-    <CodeAnalysisRuleSet>..\..\Ocelot\codeanalysis.ruleset</CodeAnalysisRuleSet>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <NoWarn>1591</NoWarn>
     <Copyright>© 2026 Three Mammals. MIT licensed OSS</Copyright>
