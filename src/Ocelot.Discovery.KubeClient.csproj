@@ -1,29 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
-    <ImplicitUsings>disable</ImplicitUsings>
+    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
-    <NoPackageAnalysis>true</NoPackageAnalysis>
-    <Product>Ocelot Gateway</Product>
-    <Description>Provides Ocelot extensions to use Kubernetes service discovery.</Description>
-    <VersionPrefix>0.0.0-dev</VersionPrefix>
-    <PackageId>Ocelot.Discovery.KubeClient</PackageId>
-    <PackageTags>ocelot;discovery;service-discovery;kubernetes;kubectl</PackageTags>
-    <PackageProjectUrl>https://github.com/ThreeMammals/Ocelot.Discovery.KubeClient</PackageProjectUrl>
-    <PackageIconUrl>https://raw.githubusercontent.com/ThreeMammals/Ocelot/assets/images/ocelot_icon_128x128.png</PackageIconUrl>
-    <PackageReleaseNotes></PackageReleaseNotes>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <Authors>Tom Pallister, Raman Maksimchuk</Authors>
-    <Company>Three Mammals</Company>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <IncludeSymbols>True</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <NoWarn>1591</NoWarn>
-    <Copyright>© 2026 Three Mammals. MIT licensed OSS</Copyright>
+    <NoWarn>CS1591</NoWarn>
+    <!--Package properties-->
+    <Version>25.0.0-beta.1</Version>
+    <PackageId>Ocelot.Discovery.KubeClient</PackageId>
+    <PackageDescription>Provides Ocelot extensions to use Kubernetes service discovery via KubeClient lib.</PackageDescription>
+    <PackageReleaseNotes>https://github.com/ThreeMammals/Ocelot.Discovery.KubeClient/releases</PackageReleaseNotes>
+    <PackageTags>ocelot;discovery;service-discovery;kubernetes;kubectl</PackageTags>
     <PackageIcon>ocelot_icon.png</PackageIcon>
-    <RepositoryUrl>https://github.com/ThreeMammals/Ocelot.git</RepositoryUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/ThreeMammals/Ocelot/assets/images/ocelot_icon_128x128.png</PackageIconUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/ThreeMammals/Ocelot/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/ThreeMammals/Ocelot.Discovery.KubeClient.git</RepositoryUrl>
+    <Authors>Tom Pallister, Raman Maksimchuk, Adam Friedman</Authors>
+    <Company>Three Mammals</Company>
+    <Product>Ocelot Gateway</Product>
+    <Copyright>© 2026 Three Mammals. MIT licensed OSS</Copyright>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\LICENSE" Pack="true" PackagePath="\" Link=".package\LICENSE" />
