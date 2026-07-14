@@ -3,6 +3,13 @@
 [![Kubernetes Logo](/.config/k8s_logo_128.svg)](https://github.com/kubernetes/kubernetes "Go to Kubernetes repository")
 
 # Ocelot.Discovery.KubeClient
+[![Release](https://github.com/ThreeMammals/Ocelot.Discovery.KubeClient/actions/workflows/release.yml/badge.svg)](https://github.com/ThreeMammals/Ocelot.Discovery.KubeClient/actions/workflows/release.yml)
+[![Publish](https://github.com/ThreeMammals/Ocelot.Discovery.KubeClient/actions/workflows/publish.yml/badge.svg)](https://github.com/ThreeMammals/Ocelot.Discovery.KubeClient/actions/workflows/publish.yml)
+[![codecov1](https://codecov.io/gh/ThreeMammals/Ocelot.Discovery.KubeClient/graph/badge.svg?token=W0Yfr1xh9O&flag=unit)](https://codecov.io/gh/ThreeMammals/Ocelot.Discovery.KubeClient?flags%5B0%5D=unit "Coverage by unit tests")
+[![codecov2](https://codecov.io/gh/ThreeMammals/Ocelot.Discovery.KubeClient/graph/badge.svg?token=W0Yfr1xh9O&flag=accept)](https://codecov.io/gh/ThreeMammals/Ocelot.Discovery.KubeClient?flags%5B0%5D=accept "Coverage by acceptance tests")
+[![NuGet](https://img.shields.io/nuget/vpre/Ocelot.Discovery.KubeClient?logo=nuget&label=NuGet)](https://www.nuget.org/packages/Ocelot.Discovery.KubeClient/ "Download Ocelot.Discovery.KubeClient from NuGet.org")
+[![Downloads](https://img.shields.io/nuget/dt/Ocelot.Discovery.KubeClient?logo=nuget&label=Downloads)](https://www.nuget.org/packages/Ocelot.Discovery.KubeClient/ "Total Ocelot.Discovery.KubeClient downloads from NuGet.org")
+
 [Ocelot](https://github.com/ThreeMammals/Ocelot) [Service Discovery](https://ocelot.readthedocs.io/en/latest/features/servicediscovery.html) feature, powered by [KubeClient](https://github.com/tintoy/dotnet-kube-client) integration for The Linux Foundation [Kubernetes](https://kubernetes.io/) service discovery.
 
 | Project website | [KubeClient](https://github.com/tintoy/dotnet-kube-client) by [Adam Friedman](https://github.com/tintoy) |
