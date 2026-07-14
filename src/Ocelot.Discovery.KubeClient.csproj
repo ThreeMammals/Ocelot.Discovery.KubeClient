@@ -9,7 +9,7 @@
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <NoWarn>CS1591</NoWarn>
     <!--Package properties-->
-    <Version>25.0.0-beta.1</Version>
+    <Version>25.0.0-beta.2</Version>
     <PackageId>Ocelot.Discovery.KubeClient</PackageId>
     <PackageDescription>Provides Ocelot extensions to use Kubernetes service discovery via KubeClient lib.</PackageDescription>
     <PackageReleaseNotes>https://github.com/ThreeMammals/Ocelot.Discovery.KubeClient/releases</PackageReleaseNotes>

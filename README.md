@@ -1,8 +1,6 @@
 [![Ocelot Logo](/.config/ocelot_icon.png)](https://github.com/ThreeMammals/Ocelot/ "Go to Ocelot repository")
 [![KubeClient Icon](/.config/icon_KC_KubeClient.svg)](https://github.com/tintoy/dotnet-kube-client "Go to KubeClient repository")
-<a href="https://github.com/kubernetes/kubernetes" title="Go to Kubernetes (K8s) repository">
-  <img src="/.config/logo_k8s.svg" width="128" height="128" alt="K8s Logo">
-</a>
+[![Kubernetes Logo](/.config/k8s_logo_128.svg)](https://github.com/kubernetes/kubernetes "Go to Kubernetes repository")
 
 # Ocelot.Discovery.KubeClient
 [Ocelot](https://github.com/ThreeMammals/Ocelot) [Service Discovery](https://ocelot.readthedocs.io/en/latest/features/servicediscovery.html) feature, powered by [KubeClient](https://github.com/tintoy/dotnet-kube-client) integration for The Linux Foundation [Kubernetes](https://kubernetes.io/) service discovery.
