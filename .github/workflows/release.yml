@@ -12,9 +12,9 @@ jobs:
       contents: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: |
             8.0.x
@@ -82,47 +82,47 @@ jobs:
         run: dotnet restore ./Ocelot.Discovery.KubeClient.slnx
       - name: Pack project
         run: dotnet pack ./src/Ocelot.Discovery.KubeClient.csproj --configuration Release --output ./packages /p:ContinuousIntegrationBuild=true
-      - name: Publish to GitHub Packages
-        run: dotnet nuget push ./packages/*.nupkg --source "https://nuget.pkg.github.com/ThreeMammals/index.json" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
-      - name: Publish to NuGet
-        run: dotnet nuget push ./packages/*.nupkg --source "https://api.nuget.org/v3/index.json" --api-key ${{ secrets.NUGET_API_KEY_2025 }} --skip-duplicate
+      # - name: Publish to GitHub Packages
+      #   run: dotnet nuget push ./packages/*.nupkg --source "https://nuget.pkg.github.com/ThreeMammals/index.json" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
+      # - name: Publish to NuGet
+      #   run: dotnet nuget push ./packages/*.nupkg --source "https://api.nuget.org/v3/index.json" --api-key ${{ secrets.NUGET_API_KEY_2025 }} --skip-duplicate
 
       - name: GitHub Release
-        uses: softprops/action-gh-release@v2 # https://github.com/softprops/action-gh-release
+        uses: softprops/action-gh-release@v3 # https://github.com/softprops/action-gh-release
         env:
           PACKAGE_VERSION: ${{ steps.ver.outputs.PkgVersion }}
           OCELOT_VERSION: ${{ steps.xml.outputs.OcelotRefVer }}
-          KubeClient_VERSION: ${{ steps.xml.outputs.KubeClientRefVer }}
+          KUBECLIENT_VERSION: ${{ steps.xml.outputs.KubeClientRefVer }}
         with:
           # tag_name: 0.0.3 # Name of a tag. defaults to github.ref_name
           body: |
             ## Version [${{ env.PACKAGE_VERSION }}](https://www.nuget.org/packages/Ocelot.Discovery.KubeClient/${{ env.PACKAGE_VERSION }})
             > For Ocelot release: [${{ env.OCELOT_VERSION }}](https://github.com/ThreeMammals/Ocelot.Discovery.KubeClient/releases/tag/${{ env.OCELOT_VERSION }})
             > Ocelot package: v[${{ env.OCELOT_VERSION }}](https://www.nuget.org/packages/Ocelot/${{ env.OCELOT_VERSION }})
-            > KubeClient package: v[${{ env.KubeClient_VERSION }}](https://www.nuget.org/packages/KubeClient/${{ env.KubeClient_VERSION }})
+            > KubeClient package: v[${{ env.KUBECLIENT_VERSION }}](https://www.nuget.org/packages/KubeClient/${{ env.KUBECLIENT_VERSION }})
 
             For more details, see Ocelot [Releases](https://github.com/ThreeMammals/Ocelot/releases) &rarr; [${{ env.OCELOT_VERSION }}](https://www.nuget.org/packages/Ocelot/${{ env.OCELOT_VERSION }})
           files: |
             packages/*.*pkg
           prerelease: false
           make_latest: true
-      - name: Release to Ocelot Repo
-        uses: softprops/action-gh-release@v2 # https://github.com/softprops/action-gh-release
-        if: github.ref_type == 'tag'
-        env:
-          PACKAGE_TAG: ${{ github.ref_name }}
-          PACKAGE_VERSION: ${{ steps.ver.outputs.PkgVersion }}
-          OCELOT_VERSION: ${{ steps.xml.outputs.OcelotRefVer }}
-        with:
-          repository: ThreeMammals/Ocelot
-          token: ${{ secrets.OCELOT_EXTENSION_PACKAGE_RELEASE_TOKEN }}
-          name: Ocelot.Discovery.KubeClient ${{ env.PACKAGE_TAG }}
-          tag_name: odkc.${{ env.PACKAGE_VERSION }}
-          target_commitish: develop # top commit must contain updated docs
-          body: |
-            ## Ocelot.Discovery.KubeClient version [${{ env.PACKAGE_VERSION }}](https://www.nuget.org/packages/Ocelot.Discovery.KubeClient/${{ env.PACKAGE_VERSION }})
-            > Ocelot release: [${{ env.OCELOT_VERSION }}](https://github.com/ThreeMammals/Ocelot/releases/tag/${{ env.OCELOT_VERSION }})
-            > Ocelot.Discovery.KubeClient release: [${{ env.PACKAGE_VERSION }}](https://github.com/ThreeMammals/Ocelot.Discovery.KubeClient/releases/tag/${{ env.PACKAGE_TAG }})
-          files: |
-            packages/*.*pkg
-          prerelease: true
+      # - name: Release to Ocelot Repo
+      #   uses: softprops/action-gh-release@v3 # https://github.com/softprops/action-gh-release
+      #   if: github.ref_type == 'tag'
+      #   env:
+      #     PACKAGE_TAG: ${{ github.ref_name }}
+      #     PACKAGE_VERSION: ${{ steps.ver.outputs.PkgVersion }}
+      #     OCELOT_VERSION: ${{ steps.xml.outputs.OcelotRefVer }}
+      #   with:
+      #     repository: ThreeMammals/Ocelot
+      #     token: ${{ secrets.OCELOT_EXTENSION_PACKAGE_RELEASE_TOKEN }}
+      #     name: Ocelot.Discovery.KubeClient ${{ env.PACKAGE_TAG }}
+      #     tag_name: odkc.${{ env.PACKAGE_VERSION }}
+      #     target_commitish: develop # top commit must contain updated docs
+      #     body: |
+      #       ## Ocelot.Discovery.KubeClient version [${{ env.PACKAGE_VERSION }}](https://www.nuget.org/packages/Ocelot.Discovery.KubeClient/${{ env.PACKAGE_VERSION }})
+      #       > Ocelot release: [${{ env.OCELOT_VERSION }}](https://github.com/ThreeMammals/Ocelot/releases/tag/${{ env.OCELOT_VERSION }})
+      #       > Ocelot.Discovery.KubeClient release: [${{ env.PACKAGE_VERSION }}](https://github.com/ThreeMammals/Ocelot.Discovery.KubeClient/releases/tag/${{ env.PACKAGE_TAG }})
+      #     files: |
+      #       packages/*.*pkg
+      #     prerelease: true
