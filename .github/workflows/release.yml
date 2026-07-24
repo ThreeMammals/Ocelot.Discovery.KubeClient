@@ -96,12 +96,11 @@ jobs:
         with:
           # tag_name: 0.0.3 # Name of a tag. defaults to github.ref_name
           body: |
-            ## Version [${{ env.PACKAGE_VERSION }}](https://www.nuget.org/packages/Ocelot.Discovery.KubeClient/${{ env.PACKAGE_VERSION }})
-            > For Ocelot release: [${{ env.OCELOT_VERSION }}](https://github.com/ThreeMammals/Ocelot.Discovery.KubeClient/releases/tag/${{ env.OCELOT_VERSION }})
-            > Ocelot package: v[${{ env.OCELOT_VERSION }}](https://www.nuget.org/packages/Ocelot/${{ env.OCELOT_VERSION }})
-            > KubeClient package: v[${{ env.KUBECLIENT_VERSION }}](https://www.nuget.org/packages/KubeClient/${{ env.KUBECLIENT_VERSION }})
+            ## Version [${{ env.PACKAGE_VERSION }}](https://www.nuget.org/packages/Ocelot.Discovery.KubeClient/${{ env.PACKAGE_VERSION }}) for Ocelot release v[${{ env.OCELOT_VERSION }}](https://github.com/ThreeMammals/Ocelot/releases/tag/${{ env.OCELOT_VERSION }})
+            - Ocelot package: v[${{ env.OCELOT_VERSION }}](https://www.nuget.org/packages/Ocelot/${{ env.OCELOT_VERSION }})
+            - KubeClient package: v[${{ env.KUBECLIENT_VERSION }}](https://www.nuget.org/packages/KubeClient/${{ env.KUBECLIENT_VERSION }})
 
-            For more details, see Ocelot [Releases](https://github.com/ThreeMammals/Ocelot/releases) &rarr; [${{ env.OCELOT_VERSION }}](https://www.nuget.org/packages/Ocelot/${{ env.OCELOT_VERSION }})
+            For more details, see the Ocelot [releases](https://github.com/ThreeMammals/Ocelot/releases) &rarr; specifically [${{ env.OCELOT_VERSION }}](https://github.com/ThreeMammals/Ocelot/releases/tag/${{ env.OCELOT_VERSION }})
           files: |
             packages/*.*pkg
           prerelease: false
