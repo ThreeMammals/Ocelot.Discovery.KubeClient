@@ -103,7 +103,7 @@ public sealed class KubernetesServiceDiscoveryTests : DiscoverySteps
         ThenTheTokenIs("Bearer txpc696iUhbVoudg164r93CxDTrKRVWG");
     }
 
-    [SkippableTheory]
+    [Theory]
     [Trait("Bug", "2110")] // https://github.com/ThreeMammals/Ocelot/issues/2110
     [InlineData(1, 30, null)]
     [InlineData(2, 50, null)]
@@ -120,7 +120,7 @@ public sealed class KubernetesServiceDiscoveryTests : DiscoverySteps
     public void ShouldHighlyLoadOnStableKubeProviderWithRoundRobinLoadBalancing(int totalServices, int totalRequests, string discoveryType)
     {
         // TODO Check it before stable release
-        Skip.If(RuntimeInformation.IsOSPlatform(OSPlatform.OSX), "Skip in MacOS because the test is very unstable");
+        Assert.SkipWhen(RuntimeInformation.IsOSPlatform(OSPlatform.OSX), "Skip in MacOS because the test is very unstable");
 
         discoveryType ??= nameof(Kube);
         var serviceName = ServiceName();
@@ -137,7 +137,7 @@ public sealed class KubernetesServiceDiscoveryTests : DiscoverySteps
         }
     }
 
-    [SkippableTheory]
+    [Theory]
     [Trait("Bug", "2110")] // https://github.com/ThreeMammals/Ocelot/issues/2110
     [InlineData(5, 50, 1, null)]
     [InlineData(5, 50, 2, null)]
@@ -148,7 +148,7 @@ public sealed class KubernetesServiceDiscoveryTests : DiscoverySteps
     public void ShouldHighlyLoadOnUnstableKubeProviderWithRoundRobinLoadBalancing(int totalServices, int totalRequests, int k8sGeneration, string discoveryType)
     {
         // TODO Check it before stable release
-        Skip.If(RuntimeInformation.IsOSPlatform(OSPlatform.OSX), "Skip in MacOS because the test is very unstable");
+        Assert.SkipWhen(RuntimeInformation.IsOSPlatform(OSPlatform.OSX), "Skip in MacOS because the test is very unstable");
 
         discoveryType ??= nameof(Kube);
         var serviceName = ServiceName();
