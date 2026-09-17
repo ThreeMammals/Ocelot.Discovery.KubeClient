@@ -42,7 +42,7 @@ public sealed class KubernetesServiceDiscoveryTests : DiscoverySteps
     [InlineData(nameof(Kube))]
     [InlineData(nameof(PollKube))] // Bug 2304 -> https://github.com/ThreeMammals/Ocelot/issues/2304
     [InlineData(nameof(WatchKube))]
-    public void ShouldReturnServicesFromK8s(string discoveryType)
+    public async Task ShouldReturnServicesFromK8s(string discoveryType)
     {
         var servicePort = PortFinder.GetRandomPort();
         var downstreamUrl = LoopbackLocalhostUrl(servicePort);
@@ -52,25 +52,23 @@ public sealed class KubernetesServiceDiscoveryTests : DiscoverySteps
         var route = GivenRouteWithServiceName(ServiceName());
         var configuration = GivenKubeConfiguration(route, discoveryType);
         string serviceName = ServiceName(), downstreamResponse = serviceName;
-        this
-            .Given(x => GivenServiceInstanceIsRunning(downstreamUrl, downstreamResponse))
-            .And(x => x.GivenThereIsAFakeKubernetesProvider(serviceName))
-            .And(_ => GivenThereIsAConfiguration(configuration))
-            .And(_ => GivenOcelotIsRunning(WithKubernetes))
-            .When(_ => GivenWatchReceivedEvent())
-            .When(_ => WhenIGetUrlOnTheApiGateway("/"))
-            .Then(_ => ThenTheStatusCodeShouldBe(HttpStatusCode.OK))
-            .And(_ => ThenTheResponseBodyShouldBe($"1^:^{downstreamResponse}"))
-            .And(x => ThenAllServicesShouldHaveBeenCalledTimes(1))
-            .And(x => x.ThenTheTokenIs("Bearer txpc696iUhbVoudg164r93CxDTrKRVWG"))
-        .BDDfy();
+        GivenServiceInstanceIsRunning(downstreamUrl, downstreamResponse);
+        GivenThereIsAFakeKubernetesProvider(serviceName);
+        GivenThereIsAConfiguration(configuration);
+        GivenOcelotIsRunning(WithKubernetes);
+        GivenWatchReceivedEvent();
+        await WhenIGetUrlOnTheApiGateway("/");
+        ThenTheStatusCodeShouldBe(HttpStatusCode.OK);
+        ThenTheResponseBodyShouldBe($"1^:^{downstreamResponse}");
+        ThenAllServicesShouldHaveBeenCalledTimes(1);
+        ThenTheTokenIs("Bearer txpc696iUhbVoudg164r93CxDTrKRVWG");
     }
 
     [Theory]
     [Trait("Feat", "1967")] // https://github.com/ThreeMammals/Ocelot/issues/1967
     [InlineData("", HttpStatusCode.BadGateway)]
     [InlineData("http", HttpStatusCode.OK)]
-    public void ShouldReturnServicesByPortNameAsDownstreamScheme(string downstreamScheme, HttpStatusCode statusCode)
+    public async Task ShouldReturnServicesByPortNameAsDownstreamScheme(string downstreamScheme, HttpStatusCode statusCode)
     {
         const string serviceName = "example-web";
         var servicePort = PortFinder.GetRandomPort();
@@ -92,19 +90,17 @@ public sealed class KubernetesServiceDiscoveryTests : DiscoverySteps
         route.UpstreamPathTemplate = "/api/example/{url}";
         route.ServiceName = serviceName; // "example-web"
         var configuration = GivenKubeConfiguration(route, nameof(Kube));
-        this
-            .Given(x => GivenServiceInstanceIsRunning(downstreamUrl, nameof(ShouldReturnServicesByPortNameAsDownstreamScheme)))
-            .And(x => x.GivenThereIsAFakeKubernetesProvider(serviceName))
-            .And(_ => GivenThereIsAConfiguration(configuration))
-            .And(_ => GivenOcelotIsRunning(WithKubernetes))
-            .When(_ => WhenIGetUrlOnTheApiGateway("/api/example/1"))
-            .Then(_ => ThenTheStatusCodeShouldBe(statusCode))
-            .And(_ => ThenTheResponseBodyShouldBe(downstreamScheme == "http"
-                    ? "1^:^" + nameof(ShouldReturnServicesByPortNameAsDownstreamScheme)
-                    : string.Empty))
-            .And(x => ThenAllServicesShouldHaveBeenCalledTimes(downstreamScheme == "http" ? 1 : 0))
-            .And(x => x.ThenTheTokenIs("Bearer txpc696iUhbVoudg164r93CxDTrKRVWG"))
-        .BDDfy();
+        GivenServiceInstanceIsRunning(downstreamUrl, Body());
+        GivenThereIsAFakeKubernetesProvider(serviceName);
+        GivenThereIsAConfiguration(configuration);
+        GivenOcelotIsRunning(WithKubernetes);
+        await WhenIGetUrlOnTheApiGateway("/api/example/1");
+        ThenTheStatusCodeShouldBe(statusCode);
+        ThenTheResponseBodyShouldBe(downstreamScheme == "http"
+                  ? "1^:^" + nameof(ShouldReturnServicesByPortNameAsDownstreamScheme)
+                  : string.Empty);
+        ThenAllServicesShouldHaveBeenCalledTimes(downstreamScheme == "http" ? 1 : 0);
+        ThenTheTokenIs("Bearer txpc696iUhbVoudg164r93CxDTrKRVWG");
     }
 
     [SkippableTheory]
@@ -131,15 +127,14 @@ public sealed class KubernetesServiceDiscoveryTests : DiscoverySteps
         int zeroGeneration = 0, k8sCount = totalRequests;
         int bottom = totalRequests / totalServices,
             top = totalRequests - (bottom * totalServices) + bottom;
-        this
-            .Given(x => GivenServiceDiscoveryAndLoadBalancing(totalServices, discoveryType, nameof(RoundRobinAnalyzer), null, null, serviceName))
-            .And(x => GivenThereIsAFakeKubernetesProvider(serviceName)) // stable, services will not be removed from the list
-            .When(x => HighlyLoadOnKubeProviderAndRoundRobinBalancer(discoveryType, totalRequests, zeroGeneration, k8sCount))
-            .ThenIf(discoveryType != nameof(PollKube),
-                x => ThenAllServicesCalledRealisticAmountOfTimes(bottom, top))
-            .ThenIf(discoveryType != nameof(PollKube),
-                x => ThenServiceCountersShouldMatchLeasingCounters(_roundRobinAnalyzer, _servicePorts, totalRequests))
-        .BDDfy();
+        GivenServiceDiscoveryAndLoadBalancing(totalServices, discoveryType, nameof(RoundRobinAnalyzer), null, null, serviceName);
+        GivenThereIsAFakeKubernetesProvider(serviceName); // stable, services will not be removed from the list
+        HighlyLoadOnKubeProviderAndRoundRobinBalancer(discoveryType, totalRequests, zeroGeneration, k8sCount);
+        if (discoveryType != nameof(PollKube))
+        {
+            ThenAllServicesCalledRealisticAmountOfTimes(bottom, top);
+            ThenServiceCountersShouldMatchLeasingCounters(_roundRobinAnalyzer, _servicePorts, totalRequests);
+        }
     }
 
     [SkippableTheory]
@@ -159,13 +154,11 @@ public sealed class KubernetesServiceDiscoveryTests : DiscoverySteps
         var serviceName = ServiceName();
         int failPerThreads = (totalRequests / k8sGeneration) - 1, // k8sGeneration means number of offline services
             k8sCount = totalRequests;
-        this
-            .Given(x => GivenServiceDiscoveryAndLoadBalancing(totalServices, discoveryType, nameof(RoundRobinAnalyzer), null, null, serviceName))
-            .And(x => GivenThereIsAFakeKubernetesProvider(_endpoints, false, k8sGeneration, failPerThreads, serviceName, null)) // false means unstable, k8sGeneration services will be removed from the list
-            .When(x => HighlyLoadOnKubeProviderAndRoundRobinBalancer(discoveryType, totalRequests, discoveryType == nameof(WatchKube) ? 0 : k8sGeneration, k8sCount))
-            .Then(x => ThenAllServicesCalledOptimisticAmountOfTimes(_roundRobinAnalyzer)) // with unstable checkings
-            .And(x => ThenServiceCountersShouldMatchLeasingCounters(_roundRobinAnalyzer, _servicePorts, totalRequests))
-        .BDDfy();
+        GivenServiceDiscoveryAndLoadBalancing(totalServices, discoveryType, nameof(RoundRobinAnalyzer), null, null, serviceName);
+        GivenThereIsAFakeKubernetesProvider(_endpoints, false, k8sGeneration, failPerThreads, serviceName, null); // false means unstable, k8sGeneration services will be removed from the list
+        HighlyLoadOnKubeProviderAndRoundRobinBalancer(discoveryType, totalRequests, discoveryType == nameof(WatchKube) ? 0 : k8sGeneration, k8sCount);
+        ThenAllServicesCalledOptimisticAmountOfTimes(_roundRobinAnalyzer); // with unstable checkings
+        ThenServiceCountersShouldMatchLeasingCounters(_roundRobinAnalyzer, _servicePorts, totalRequests);
     }
 
     [Theory]
@@ -173,7 +166,7 @@ public sealed class KubernetesServiceDiscoveryTests : DiscoverySteps
     [InlineData(nameof(PollKube))] // Bug 2304 -> https://github.com/ThreeMammals/Ocelot/issues/2304
     [InlineData(nameof(WatchKube))]
     [Trait("Feat", "2256")] // https://github.com/ThreeMammals/Ocelot/discussions/2256
-    public void ShouldReturnServicesFromK8sWhenAddKubernetesWithNullConfigureOptions(string discoveryType)
+    public async Task ShouldReturnServicesFromK8sWhenAddKubernetesWithNullConfigureOptions(string discoveryType)
     {
         var servicePort = PortFinder.GetRandomPort();
         var downstreamUrl = LoopbackLocalhostUrl(servicePort);
@@ -183,24 +176,22 @@ public sealed class KubernetesServiceDiscoveryTests : DiscoverySteps
         var route = GivenRouteWithServiceName();
         var configuration = GivenKubeConfiguration(route, discoveryType, "txpc696iUhbVoudg164r93CxDTrKRVWG");
         string serviceName = ServiceName(), downstreamResponse = serviceName;
-        this
-            .Given(x => GivenServiceInstanceIsRunning(downstreamUrl, downstreamResponse))
-            .And(x => x.GivenThereIsAFakeKubernetesProvider(serviceName))
-            .And(_ => GivenThereIsAConfiguration(configuration))
-            .And(_ => GivenOcelotIsRunning(AddKubernetesWithNullConfigureOptions))
-            .When(_ => GivenWatchReceivedEvent())
-            .When(_ => WhenIGetUrlOnTheApiGateway("/"))
-            .Then(_ => ThenTheStatusCodeShouldBe(HttpStatusCode.OK))
-            .And(_ => ThenTheResponseBodyShouldBe($"1^:^{downstreamResponse}"))
-            .And(x => ThenAllServicesShouldHaveBeenCalledTimes(1))
-            .And(x => x.ThenTheTokenIs("Bearer txpc696iUhbVoudg164r93CxDTrKRVWG"))
-        .BDDfy();
+        GivenServiceInstanceIsRunning(downstreamUrl, downstreamResponse);
+        GivenThereIsAFakeKubernetesProvider(serviceName);
+        GivenThereIsAConfiguration(configuration);
+        GivenOcelotIsRunning(AddKubernetesWithNullConfigureOptions);
+        GivenWatchReceivedEvent();
+        await WhenIGetUrlOnTheApiGateway("/");
+        ThenTheStatusCodeShouldBe(HttpStatusCode.OK);
+        ThenTheResponseBodyShouldBe($"1^:^{downstreamResponse}");
+        ThenAllServicesShouldHaveBeenCalledTimes(1);
+        ThenTheTokenIs("Bearer txpc696iUhbVoudg164r93CxDTrKRVWG");
     }
 
     [Fact]
     [Trait("Feat", "2168")] // https://github.com/ThreeMammals/Ocelot/discussions/2168
     [Trait("PR", "2174")] // https://github.com/ThreeMammals/Ocelot/pull/2174
-    public void ShouldReturnServicesFromK8sWhenOneWatchRequestUpdatesServicesInfo()
+    public async Task ShouldReturnServicesFromK8sWhenOneWatchRequestUpdatesServicesInfo()
     {
         (EndpointsV1 endpoints, string downstreamUrl) = GetServiceInstance();
         (EndpointsV1 updatedEndpoints, string updateDownstreamUrl) = GetServiceInstance();
@@ -214,26 +205,24 @@ public sealed class KubernetesServiceDiscoveryTests : DiscoverySteps
         
         string serviceName = ServiceName(), downstreamResponse = serviceName;
         var updatedDownstreamResponse = "updated_content" + serviceName;
-        this
-            .Given(x => GivenServiceInstanceIsRunning(downstreamUrl, downstreamResponse))
-            .Given(x => GivenServiceInstanceIsRunning(updateDownstreamUrl, updatedDownstreamResponse))
-            .And(x => GivenThereIsAFakeKubernetesProvider(events, serviceName))
-            .And(_ => GivenThereIsAConfiguration(configuration))
-            .And(_ => GivenOcelotIsRunning(WithKubernetes))
-            .When(_ => GivenWatchReceivedEvent())
-            .When(_ => WhenIGetUrlOnTheApiGatewayConcurrently("/", 10))
-            .Then(_ => ThenAllStatusCodesShouldBe(HttpStatusCode.OK))
-            .And(_ => ThenAllResponseBodiesShouldBe(downstreamResponse))
-            .And(_ => ThenK8sShouldBeCalledExactly(1))
-            .And(x => ThenAllServicesShouldHaveBeenCalledTimes(10))
-            .Given(_ => GivenWatchReceivedEvent())
-            .Given(_ => GivenIWaitAsync(100))
-            .When(_ => WhenIGetUrlOnTheApiGatewayConcurrently("/", 10))
-            .Then(_ => ThenAllStatusCodesShouldBe(HttpStatusCode.OK))
-            .And(_ => ThenAllResponseBodiesShouldBe(updatedDownstreamResponse))
-            .And(_ => ThenK8sShouldBeCalledExactly(1))
-            .And(x => ThenAllServicesShouldHaveBeenCalledTimes(20))
-        .BDDfy();
+        GivenServiceInstanceIsRunning(downstreamUrl, downstreamResponse);
+        GivenServiceInstanceIsRunning(updateDownstreamUrl, updatedDownstreamResponse);
+        GivenThereIsAFakeKubernetesProvider(events, serviceName);
+        GivenThereIsAConfiguration(configuration);
+        GivenOcelotIsRunning(WithKubernetes);
+        GivenWatchReceivedEvent();
+        WhenIGetUrlOnTheApiGatewayConcurrently("/", 10);
+        ThenAllStatusCodesShouldBe(HttpStatusCode.OK);
+        ThenAllResponseBodiesShouldBe(downstreamResponse);
+        ThenK8sShouldBeCalledExactly(1);
+        ThenAllServicesShouldHaveBeenCalledTimes(10);
+        GivenWatchReceivedEvent();
+        await GivenIWaitAsync(100);
+        WhenIGetUrlOnTheApiGatewayConcurrently("/", 10);
+        ThenAllStatusCodesShouldBe(HttpStatusCode.OK);
+        ThenAllResponseBodiesShouldBe(updatedDownstreamResponse);
+        ThenK8sShouldBeCalledExactly(1);
+        ThenAllServicesShouldHaveBeenCalledTimes(20);
 
         (EndpointsV1 Endpoints, string DownstreamUrl) GetServiceInstance()
         {
@@ -253,7 +242,7 @@ public sealed class KubernetesServiceDiscoveryTests : DiscoverySteps
     [InlineData(nameof(Kube))]
     // [InlineData(nameof(PollKube))] // Bug 2304 -> https://github.com/ThreeMammals/Ocelot/issues/2304
     [InlineData(nameof(WatchKube))]
-    public void ShouldApplyGlobalLoadBalancerOptions_ForAllDynamicRoutes(string discoveryType)
+    public async Task ShouldApplyGlobalLoadBalancerOptions_ForAllDynamicRoutes(string discoveryType)
     {
         Action<FileConfiguration> ConfigureDynamicRouting = (configuration) =>
         {
@@ -264,39 +253,35 @@ public sealed class KubernetesServiceDiscoveryTests : DiscoverySteps
         };
         var serviceName = ServiceName();
         var upstreamPath = $"/{ServiceNamespace()}.{ServiceName()}/";
-        this
-            .Given(x => GivenServiceDiscoveryAndLoadBalancing(5, discoveryType, nameof(RoundRobin), ConfigureDynamicRouting, WithKubernetesAndFakeKubeServiceCreator, serviceName))
-            .And(x => GivenThereIsAFakeKubernetesProvider(serviceName))
-            .AndIf(discoveryType == nameof(WatchKube), x => GivenWatchReceivedEvent())
-            .When(x => WhenIGetUrlOnTheApiGatewayConcurrently(upstreamPath, 50))
-            /*if (discoveryType == nameof(PollKube))
-            {
-                //#if NET10_0_OR_GREATER
-                _k8sCounter.ShouldBeLessThan(50);
-                //#else
-                //            if (IsCiCd()) _k8sCounter.ShouldBeInRange(48, 52);
-                //            else _k8sCounter.ShouldBeGreaterThanOrEqualTo(50); // can be 50, 51 and sometimes 52
-                //#endif
-            }*/
-            .ThenIf(discoveryType == nameof(PollKube), x => _k8sCounter.ShouldBeLessThan(50, null))
+        GivenServiceDiscoveryAndLoadBalancing(5, discoveryType, nameof(RoundRobin), ConfigureDynamicRouting, WithKubernetesAndFakeKubeServiceCreator, serviceName);
+        GivenThereIsAFakeKubernetesProvider(serviceName);
+        if (discoveryType == nameof(WatchKube)) GivenWatchReceivedEvent();
+        await Task.WhenAll(WhenIGetUrlOnTheApiGatewayConcurrently(upstreamPath, 50));
+        /*if (discoveryType == nameof(PollKube))
+        {
+            //#if NET10_0_OR_GREATER
+            _k8sCounter.ShouldBeLessThan(50);
+            //#else
+            //            if (IsCiCd()) _k8sCounter.ShouldBeInRange(48, 52);
+            //            else _k8sCounter.ShouldBeGreaterThanOrEqualTo(50); // can be 50, 51 and sometimes 52
+            //#endif
+        }*/
+        if (discoveryType == nameof(PollKube)) _k8sCounter.ShouldBeLessThan(50, null);
+        /*else
+        {
+            _k8sCounter.ShouldBe(discoveryType == nameof(WatchKube) ? 1 : 50);
+        }*/
+        else _k8sCounter.ShouldBe(discoveryType == nameof(WatchKube) ? 1 : 50, null);
 
-            /*else
-            {
-                _k8sCounter.ShouldBe(discoveryType == nameof(WatchKube) ? 1 : 50);
-            }*/
-            .ThenIfNot(discoveryType == nameof(PollKube), x => _k8sCounter.ShouldBe(discoveryType == nameof(WatchKube) ? 1 : 50, null))
-
-            .Then(x => _k8sServiceGeneration.ShouldBe(0, null))
-            .And(x => ThenAllStatusCodesShouldBe(HttpStatusCode.OK))
-            .And(x => ThenAllServicesShouldHaveBeenCalledTimes(50))
-            .And(x => ThenAllServicesCalledRealisticAmountOfTimes(9, 11)) // soft assertion
-            .And(x => ThenServicesShouldHaveBeenCalledTimes(10, 10, 10, 10, 10)) // distribution by RoundRobin algorithm, aka strict assertion
-        .BDDfy();
+        _k8sServiceGeneration.ShouldBe(0);
+        ThenAllStatusCodesShouldBe(HttpStatusCode.OK);
+        ThenAllServicesShouldHaveBeenCalledTimes(50);
+        ThenAllServicesCalledRealisticAmountOfTimes(9, 11); // soft assertion
+        ThenServicesShouldHaveBeenCalledTimes(10, 10, 10, 10, 10); // distribution by RoundRobin algorithm, aka strict assertion
     }
 
     private void AddKubernetesWithNullConfigureOptions(IServiceCollection services)
         => services.AddOcelot().AddKubernetes(configureOptions: null);
-
 
     private EndpointsV1 _endpoints;
     private int[] _servicePorts;
