@@ -1,10 +1,8 @@
 ﻿using KubeClient;
 using KubeClient.Models;
-using KubeClient.ResourceClients;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Newtonsoft.Json;
 using Ocelot.Configuration;
 using Ocelot.Configuration.File;
 using Ocelot.DependencyInjection;
@@ -13,29 +11,16 @@ using Ocelot.LoadBalancer.Balancers;
 using Ocelot.Logging;
 using Ocelot.ServiceDiscovery.Providers;
 using Ocelot.Testing.LoadBalancer;
-using Ocelot.Testing.Steps;
 using Ocelot.Values;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Ocelot.Discovery.KubeClient.Acceptance;
 
-public sealed class ServiceDiscoveryTests : DiscoverySteps
+public sealed class ServiceDiscoveryTests : Steps
 {
-    private readonly string _kubernetesUrl;
-    private string _receivedToken;
-    private readonly Action<KubeClientOptions> _kubeClientOptionsConfigure;
-
     public ServiceDiscoveryTests()
     {
-        _kubernetesUrl = DownstreamUrl(PortFinder.GetRandomPort());
-        _kubeClientOptionsConfigure = opts =>
-        {
-            opts.ApiEndPoint = new Uri(_kubernetesUrl);
-            opts.AccessToken = "txpc696iUhbVoudg164r93CxDTrKRVWG";
-            opts.AuthStrategy = KubeAuthStrategy.BearerToken;
-            opts.AllowInsecure = true;
-        };
     }
 
     [Theory]
@@ -207,7 +192,7 @@ public sealed class ServiceDiscoveryTests : DiscoverySteps
         var updatedDownstreamResponse = "updated_content" + serviceName;
         GivenServiceInstanceIsRunning(downstreamUrl, downstreamResponse);
         GivenServiceInstanceIsRunning(updateDownstreamUrl, updatedDownstreamResponse);
-        GivenThereIsAFakeKubernetesProvider(events, serviceName);
+        GivenThereIsAFakeKubernetesProvider(events);
         GivenThereIsAConfiguration(configuration);
         GivenOcelotIsRunning(WithKubernetes);
         GivenWatchReceivedEvent();
@@ -251,10 +236,9 @@ public sealed class ServiceDiscoveryTests : DiscoverySteps
             configuration.Routes = []; // dynamic routing
             configuration.DynamicRoutes = []; // no dynamic routes, for ALL dynamic routes
         };
-        var serviceName = ServiceName();
-        var upstreamPath = $"/{ServiceNamespace()}.{ServiceName()}/";
-        GivenServiceDiscoveryAndLoadBalancing(5, discoveryType, nameof(RoundRobin), ConfigureDynamicRouting, WithKubernetesAndFakeKubeServiceCreator, serviceName);
-        GivenThereIsAFakeKubernetesProvider(serviceName);
+        var upstreamPath = Path();
+        GivenServiceDiscoveryAndLoadBalancing(5, discoveryType, nameof(RoundRobin), ConfigureDynamicRouting, WithKubernetesAndFakeKubeServiceCreator);
+        GivenThereIsAFakeKubernetesProvider();
         if (discoveryType == nameof(WatchKube)) GivenWatchReceivedEvent();
         await Task.WhenAll(WhenIGetUrlOnTheApiGatewayConcurrently(upstreamPath, 50));
         /*if (discoveryType == nameof(PollKube))
@@ -283,7 +267,6 @@ public sealed class ServiceDiscoveryTests : DiscoverySteps
     private void AddKubernetesWithNullConfigureOptions(IServiceCollection services)
         => services.AddOcelot().AddKubernetes(configureOptions: null);
 
-    private EndpointsV1 _endpoints;
     private int[] _servicePorts;
     private void GivenServiceDiscoveryAndLoadBalancing(
         int totalServices,
@@ -293,19 +276,9 @@ public sealed class ServiceDiscoveryTests : DiscoverySteps
         Action<IServiceCollection> services = null,
         [CallerMemberName] string serviceName = null)
     {
-        serviceName ??= ServiceName();
         _servicePorts = PortFinder.GetPorts(totalServices);
-        var downstreamUrls = _servicePorts
-            .Select(port => LoopbackLocalhostUrl(port, Array.IndexOf(_servicePorts, port))) // TODO Develop thread-safe version of the method
-            .ToArray(); // based on localhost aka loopback network interface
-        var downstreams = downstreamUrls.Select(url => new Uri(url))
-            .ToList();
-        var downstreamResponses = downstreams
-            .Select(ds => $"{serviceName}:{ds.Host}:{ds.Port}")
-            .ToArray();
-        var subset = new EndpointSubsetV1();
-        downstreams.ForEach(ds => GivenSubsetAddress(ds, subset));
-        GivenEndpoints(subset, serviceName); // totalServices service instances with different ports
+        (string[] downstreamUrls, string[] downstreamResponses) = GivenTheServicesAreRegisteredWithKubernetes(_servicePorts, serviceName);
+
         var route = GivenRouteWithServiceName(serviceName, loadBalancerType); // !!!
         var configuration = GivenKubeConfiguration(route, discoveryType.IfEmpty(nameof(Kube)));
         configure?.Invoke(configuration);
@@ -372,43 +345,7 @@ public sealed class ServiceDiscoveryTests : DiscoverySteps
 #else
         _roundRobinAnalyzer.Events.Count.ShouldBe(totalRequests);
 #endif
-
         _roundRobinAnalyzer.HasManyServiceGenerations(k8sGenerationNo).ShouldBeTrue();
-    }
-
-    private void ThenTheTokenIs(string token) => _receivedToken.ShouldBe(token);
-    private void ThenK8sShouldBeCalledExactly(int totalRequests) => _k8sCounter.ShouldBe(totalRequests);
-
-    private void GivenEndpoints(EndpointSubsetV1 subset, [CallerMemberName] string serviceName = "")
-    {
-        var e = new EndpointsV1()
-        {
-            Kind = "endpoint",
-            ApiVersion = "1.0",
-            Metadata = new()
-            {
-                Name = serviceName,
-                Namespace = ServiceNamespace(),
-            },
-        };
-        e.Subsets.Add(subset);
-        _endpoints = e;
-    }
-
-    private static EndpointSubsetV1 GivenSubsetAddress(Uri downstream, EndpointSubsetV1 subset = null)
-    {
-        subset ??= new();
-        subset.Addresses.Add(new()
-        {
-            Ip = Dns.GetHostAddresses(downstream.Host).Select(x => x.ToString()).First(a => a.Contains('.')), // 127.0.0.1
-            Hostname = downstream.Host,
-        });
-        subset.Ports.Add(new()
-        {
-            Name = downstream.Scheme,
-            Port = downstream.Port,
-        });
-        return subset;
     }
 
     private FileRoute GivenRouteWithServiceName([CallerMemberName] string serviceName = null,
@@ -439,127 +376,22 @@ public sealed class ServiceDiscoveryTests : DiscoverySteps
         };
         return configuration;
     }
-
-    private const int MaxKubernetesDelay = 10; // ms
-    private void GivenThereIsAFakeKubernetesProvider([CallerMemberName] string serviceName = nameof(ServiceDiscoveryTests))
-        => GivenThereIsAFakeKubernetesProvider(_endpoints, true, 0, 0, serviceName, ServiceNamespace());
-
-    private void GivenThereIsAFakeKubernetesProvider(EndpointsV1 endpoints, bool isStable, int offlineServicesNo, int offlinePerThreads,
-        [CallerMemberName] string serviceName = null, string namespaces = null)
-    {
-        _k8sCounter = 0;
-        serviceName ??= ServiceName();
-        namespaces ??= ServiceNamespace();
-        handler.GivenThereIsAServiceRunningOn(_kubernetesUrl, async context =>
-        {
-            await Task.Delay(Random.Shared.Next(1, MaxKubernetesDelay)); // emulate integration delay up to 10 milliseconds
-            if (context.Request.Path.Value == $"/api/v1/namespaces/{namespaces}/endpoints/{serviceName}")
-            {
-                string json;
-                lock (K8sCounterLocker)
-                {
-                    _k8sCounter++;
-                    var subset = endpoints.Subsets[0];
-
-                    // Each offlinePerThreads-th request to integrated K8s endpoint should fail
-                    if (!isStable && _k8sCounter % offlinePerThreads == 0 && _k8sCounter >= offlinePerThreads)
-                    {
-                        while (offlineServicesNo-- > 0)
-                        {
-                            int index = subset.Addresses.Count - 1; // Random.Shared.Next(0, subset.Addresses.Count - 1);
-                            subset.Addresses.RemoveAt(index);
-                            subset.Ports.RemoveAt(index);
-                        }
-
-                        _k8sServiceGeneration++;
-                    }
-
-                    endpoints.Metadata.Generation = _k8sServiceGeneration;
-                    json = JsonConvert.SerializeObject(endpoints, KubeResourceClient.SerializerSettings);
-                }
-
-                if (context.Request.Headers.TryGetValue("Authorization", out var values))
-                {
-                    _receivedToken = values.First();
-                }
-
-                context.Response.Headers.Append("Content-Type", "application/json");
-                await context.Response.WriteAsync(json);
-            }
-
-            await GivenHandleWatchRequest(context, 
-                [new() { EventType = ResourceEventType.Added, Resource = endpoints }],
-                namespaces,
-                serviceName);
-        });
-    }
     
     private void GivenThereIsAFakeKubernetesProvider(ResourceEventV1<EndpointsV1>[] events,
-        [CallerMemberName] string serviceName = nameof(ServiceDiscoveryTests))
+        [CallerMemberName] string serviceName = null)
     {
         _k8sCounter = 0;
         var namespaces = ServiceNamespace();
         handler.GivenThereIsAServiceRunningOn(_kubernetesUrl, (c) => GivenHandleWatchRequest(c, events, namespaces, serviceName));
     }
-
-    private int GivenWatchReceivedEvent() => _k8sWatchResetEvent.Set() ? 1 : 0;
     
-    private async Task GivenHandleWatchRequest(HttpContext context,
-        IEnumerable<ResourceEventV1<EndpointsV1>> events,
-        string namespaces,
-        string serviceName)
-    {
-        await Task.Delay(Random.Shared.Next(1, 10)); // emulate integration delay up to 10 milliseconds
-            
-        if (context.Request.Path.Value == $"/api/v1/watch/namespaces/{namespaces}/endpoints/{serviceName}")
-        {
-            _k8sCounter++;
-
-            if (context.Request.Headers.TryGetValue("Authorization", out var values))
-            {
-                _receivedToken = values.First();
-            }
-
-            context.Response.StatusCode = 200;
-            context.Response.Headers.Append("Content-Type", "application/json");
-
-            foreach (var @event in events)
-            {
-                _k8sWatchResetEvent.WaitOne();
-                var json = JsonConvert.SerializeObject(@event, KubeResourceClient.SerializerSettings);
-                await using var sw = new StreamWriter(context.Response.Body);
-                await sw.WriteLineAsync(json);
-                await sw.FlushAsync();
-                _k8sWatchResetEvent.Reset();
-            }
-
-            // keeping open connection like kube api will slow down tests
-        }
-    }
-
-    private static ServiceDescriptor GetValidateScopesDescriptor()
-        => ServiceDescriptor.Singleton<IServiceProviderFactory<IServiceCollection>>(
-            new DefaultServiceProviderFactory(new() { ValidateScopes = true }));
-    
-    private IOcelotBuilder AddKubernetes(IServiceCollection services) => services
-        .Replace(GetValidateScopesDescriptor())
-        .AddOcelot().AddKubernetes(_kubeClientOptionsConfigure);
-
-    private void WithKubernetes(IServiceCollection services) => AddKubernetes(services);
     private void WithKubernetesAndFakeKubeServiceCreator(IServiceCollection services) => AddKubernetes(services)
         .Services.RemoveAll<IKubeServiceCreator>().AddSingleton<IKubeServiceCreator, FakeKubeServiceCreator>();
     private void WithKubernetesAndRoundRobin(IServiceCollection services) => AddKubernetes(services)
         .AddCustomLoadBalancer<RoundRobinAnalyzer>(GetRoundRobinAnalyzer)
         .Services.RemoveAll<IKubeServiceCreator>().AddSingleton<IKubeServiceCreator, FakeKubeServiceCreator>();
 
-    private int _k8sCounter, _k8sServiceGeneration;
-#if NET9_0_OR_GREATER
-    private static readonly Lock K8sCounterLocker = new();
-#else
-    private static readonly object K8sCounterLocker = new();
-#endif
     private RoundRobinAnalyzer _roundRobinAnalyzer;
-    private readonly AutoResetEvent _k8sWatchResetEvent = new(false);
     private RoundRobinAnalyzer GetRoundRobinAnalyzer(DownstreamRoute route, IServiceDiscoveryProvider provider)
     {
         lock (K8sCounterLocker)
