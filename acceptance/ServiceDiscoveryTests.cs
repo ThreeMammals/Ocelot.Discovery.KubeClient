@@ -20,13 +20,13 @@ using System.Runtime.InteropServices;
 
 namespace Ocelot.Discovery.KubeClient.Acceptance;
 
-public sealed class KubernetesServiceDiscoveryTests : DiscoverySteps
+public sealed class ServiceDiscoveryTests : DiscoverySteps
 {
     private readonly string _kubernetesUrl;
     private string _receivedToken;
     private readonly Action<KubeClientOptions> _kubeClientOptionsConfigure;
 
-    public KubernetesServiceDiscoveryTests()
+    public ServiceDiscoveryTests()
     {
         _kubernetesUrl = DownstreamUrl(PortFinder.GetRandomPort());
         _kubeClientOptionsConfigure = opts =>
@@ -441,7 +441,7 @@ public sealed class KubernetesServiceDiscoveryTests : DiscoverySteps
     }
 
     private const int MaxKubernetesDelay = 10; // ms
-    private void GivenThereIsAFakeKubernetesProvider([CallerMemberName] string serviceName = nameof(KubernetesServiceDiscoveryTests))
+    private void GivenThereIsAFakeKubernetesProvider([CallerMemberName] string serviceName = nameof(ServiceDiscoveryTests))
         => GivenThereIsAFakeKubernetesProvider(_endpoints, true, 0, 0, serviceName, ServiceNamespace());
 
     private void GivenThereIsAFakeKubernetesProvider(EndpointsV1 endpoints, bool isStable, int offlineServicesNo, int offlinePerThreads,
@@ -495,7 +495,7 @@ public sealed class KubernetesServiceDiscoveryTests : DiscoverySteps
     }
     
     private void GivenThereIsAFakeKubernetesProvider(ResourceEventV1<EndpointsV1>[] events,
-        [CallerMemberName] string serviceName = nameof(KubernetesServiceDiscoveryTests))
+        [CallerMemberName] string serviceName = nameof(ServiceDiscoveryTests))
     {
         _k8sCounter = 0;
         var namespaces = ServiceNamespace();
@@ -570,7 +570,7 @@ public sealed class KubernetesServiceDiscoveryTests : DiscoverySteps
 
     public override string ServiceName([CallerMemberName] string serviceName = null) => serviceName ?? GetType().Name;
     public override string ServiceNamespace() // => GetType().Namespace;
-        => nameof(KubernetesServiceDiscoveryTests); // should NOT contain dot '.' in name
+        => nameof(ServiceDiscoveryTests); // should NOT contain dot '.' in name
 }
 
 internal class FakeKubeServiceCreator : KubeServiceCreator
