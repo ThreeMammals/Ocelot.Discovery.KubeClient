@@ -17,20 +17,6 @@ namespace Ocelot.Discovery.KubeClient.Acceptance;
 public class Steps : DiscoverySteps
 {
     public const string AccessToken = "txpc696iUhbVoudg164r93CxDTrKRVWG";
-    protected readonly string _kubernetesUrl = DownstreamUrl(PortFinder.GetRandomPort());
-    private readonly Action<KubeClientOptions> _kubeClientOptionsConfigure;
-
-    public Steps()
-    {
-        _kubernetesUrl = DownstreamUrl(PortFinder.GetRandomPort());
-        _kubeClientOptionsConfigure = opts =>
-        {
-            opts.ApiEndPoint = new Uri(_kubernetesUrl);
-            opts.AccessToken = AccessToken;
-            opts.AuthStrategy = KubeAuthStrategy.BearerToken;
-            opts.AllowInsecure = true;
-        };
-    }
 
     public static JsonSerializerSettings JsonSerializerSettings
         => KubeResourceClient.SerializerSettings;
@@ -42,6 +28,7 @@ public class Steps : DiscoverySteps
     /// </summary>
     public virtual string Path(string path = "/", [CallerMemberName] string serviceName = null)
         => $"/{ServiceNamespace()}.{serviceName}/{path.TrimStart('/')}"; // first segment is always Service Name
+    public override string ServiceNamespace() => GetType().Name; // should NOT contain dot '.' in name
 
     private static ServiceDescriptor GetValidateScopesDescriptor()
         => ServiceDescriptor.Singleton<IServiceProviderFactory<IServiceCollection>>(
@@ -49,8 +36,11 @@ public class Steps : DiscoverySteps
     protected IOcelotBuilder AddKubernetes(IServiceCollection services) => services
         .Replace(GetValidateScopesDescriptor())
         .AddOcelot().AddKubernetes(_kubeClientOptionsConfigure);
+    private Action<KubeClientOptions> _kubeClientOptionsConfigure;
 
     protected void WithKubernetes(IServiceCollection services) => AddKubernetes(services);
+    protected void WithKubernetesAndFakeKubeServiceCreator(IServiceCollection services) => AddKubernetes(services)
+        .Services.RemoveAll<IKubeServiceCreator>().AddSingleton<IKubeServiceCreator, FakeKubeServiceCreator>();
 
     public (string[], string[]) GivenTheServicesAreRegisteredWithKubernetes(int[] ports, [CallerMemberName] string serviceName = null)
     {
@@ -114,17 +104,30 @@ public class Steps : DiscoverySteps
     private string _receivedToken;
     protected void ThenTheTokenIs(string token) => _receivedToken.ShouldBe(token);
 
-    protected void GivenThereIsAFakeKubernetesProvider([CallerMemberName] string serviceName = nameof(ServiceDiscoveryTests))
+    protected string GivenThereIsAFakeKubernetesProvider([CallerMemberName] string serviceName = nameof(ServiceDiscoveryTests))
         => GivenThereIsAFakeKubernetesProvider(_endpoints, true, 0, 0, serviceName, ServiceNamespace());
-
     protected const int MaxKubernetesDelay = 10; // ms
-    protected void GivenThereIsAFakeKubernetesProvider(EndpointsV1 endpoints, bool isStable, int offlineServicesNo, int offlinePerThreads,
+    protected string SetupKubernetes()
+    {
+        var url = DownstreamUrl(PortFinder.GetRandomPort());
+        _kubeClientOptionsConfigure = opts =>
+        {
+            opts.ApiEndPoint = new Uri(url);
+            opts.AccessToken = AccessToken;
+            opts.AuthStrategy = KubeAuthStrategy.BearerToken;
+            opts.AllowInsecure = true;
+        };
+        return url;
+    }
+    protected string GivenThereIsAFakeKubernetesProvider(EndpointsV1 endpoints, bool isStable, int offlineServicesNo, int offlinePerThreads,
         [CallerMemberName] string serviceName = null, string namespaces = null)
     {
         _k8sCounter = 0;
         serviceName ??= ServiceName();
         namespaces ??= ServiceNamespace();
-        handler.GivenThereIsAServiceRunningOn(_kubernetesUrl, MapServiceName);
+        var kubernetesUrl = SetupKubernetes();
+        handler.GivenThereIsAServiceRunningOn(kubernetesUrl, MapServiceName);
+        return kubernetesUrl;
 
         async Task MapServiceName(HttpContext context)
         {
